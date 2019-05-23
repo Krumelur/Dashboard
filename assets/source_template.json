@@ -1,0 +1,17 @@
+{
+    "id" : "CAR",
+    "timestamp" : "2019-05-23-201510",
+    "title" : "Electric Vehicle",
+    "data" : [
+        {
+            "id" : "SOC",
+            "label" : "State of Charge",
+            "value" : "50kWh"
+        },
+        {
+            "id" : "LOCATION",
+            "label" : "Location",
+            "value" : "Redmond"
+        }
+    ]
+}
