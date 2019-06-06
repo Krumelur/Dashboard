@@ -7,6 +7,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.27" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DTOs\DTOs.csproj" />
     <ProjectReference Include="..\SourcesSupport\SourcesSupport.csproj" />
   </ItemGroup>
   <ItemGroup>

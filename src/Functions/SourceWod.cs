@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SourcesSupport;
+using DTOs;
+using System.Linq;
 
 namespace Functions
 {
@@ -21,9 +23,25 @@ namespace Functions
             log.LogInformation("Requesting WOD");
 
 			// Extract WOD from website.
-			var rawWod = await WodHelpers.GetRawWodAsync(log);
+			var textWods = await WodHelpers.GetRawWodAsync(log);
 
-			return new OkObjectResult("Done");
+			var dataItems = textWods
+				.Select<string, BaseDataDTO>(w => new TextDataDTO {
+					Id = $"WOD_PART_{textWods.IndexOf(w) + 1}",
+					Label = $"Part {textWods.IndexOf(w) + 1}",
+					Value = w,
+				})
+				.ToList();
+
+			var result = new SourceDTO
+			{
+				Id = "WOD",
+				Title = "Workout of the day",
+				TimeStampUtc = DateTimeOffset.UtcNow,
+				DataItems = dataItems
+			};
+
+			return new OkObjectResult(result);
         }
     }
 }

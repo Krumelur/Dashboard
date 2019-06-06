@@ -11,8 +11,8 @@ namespace Tests
 		[TestMethod]
 		public async Task GetWorkoutOfTheDay_ShouldReturnValidWod()
 		{
-			var wod = await WodHelpers.GetRawWodAsync(null);
-			wod.Should().NotBeNullOrWhiteSpace();
+			var wodList = await WodHelpers.GetRawWodAsync(null);
+			wodList.Should().NotBeNullOrEmpty();
 		}
 	}
 }
