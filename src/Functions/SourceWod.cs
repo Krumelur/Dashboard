@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace Functions
 {
-    public static class Function1
+    public static class SourceWod
     {
         [FunctionName("GetWod")]
         public static async Task<IActionResult> Run(

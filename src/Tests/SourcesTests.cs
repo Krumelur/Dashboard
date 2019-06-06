@@ -14,5 +14,13 @@ namespace Tests
 			var wodList = await WodHelpers.GetRawWodAsync(null);
 			wodList.Should().NotBeNullOrEmpty();
 		}
+
+		[TestMethod]
+		public async Task GetSolarCurrentPower_ShouldReturnValidValues()
+		{
+			var solarHelper = new SolarHelper(414683, "", null);
+			var currentPower = await solarHelper.GetCurrentPowerAsync();
+			currentPower.Grid.Status.Should().Be("active");
+		}
 	}
 }
