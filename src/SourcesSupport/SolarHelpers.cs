@@ -26,11 +26,12 @@ namespace SourcesSupport
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		readonly string _apiKey;
 		readonly int _installationId;
-		ILogger _logger;
+		readonly ILogger _logger;
 
 		public async Task<CurrentPowerFlow> GetCurrentPowerAsync()
 		{
 			var result = await SOLAR_EDGE_BASE_URL
+				.AppendPathSegment(_installationId)
 				.AppendPathSegment("currentPowerFlow")
 				.SetQueryParam("api_key", _apiKey)
 				.GetJsonAsync<CurrentPowerFlowRoot>()

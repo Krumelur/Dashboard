@@ -10,21 +10,33 @@ using Newtonsoft.Json;
 using SourcesSupport;
 using DTOs;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace Functions
 {
-    public static class SourceSolar
-    {
-        [FunctionName("GetSolar")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "solar")] HttpRequest req,
-            ILogger log)
-        {
-            log.LogInformation("Requesting solar data");
+	public class SourceSolar
+	{
+		public SourceSolar(IConfiguration config)
+		{
+			_config = config;
+		}
+		IConfiguration _config;
 
-			var solarData = await SolarHelper.GetCurrentPowerAsync(log);
+		[FunctionName("GetSolar")]
+		public async Task<IActionResult> Run(
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "solar")] HttpRequest req,
+			ILogger log)
+		{
+			log.LogInformation("Requesting solar data");
 
-			return OkObjectResult("Solar");
-        }
-    }
+			var solarEdgeApiKey = _config["SolarEdgeApiKey"];
+			var solarEdgeLocationId = Int32.Parse(_config["SolarEdgeLocationId"]);
+
+			var solarHelper = new SolarHelper(solarEdgeLocationId, solarEdgeApiKey, log);
+
+			var solarData = await solarHelper.GetCurrentPowerAsync();
+
+			return new OkObjectResult(solarData);
+		}
+	}
 }
