@@ -36,6 +36,7 @@ namespace Functions
 
 			var solarData = await solarHelper.GetCurrentPowerAsync();
 
+			// TODO: Turn into SourceDTO
 			return new OkObjectResult(solarData);
 		}
 	}
