@@ -11,11 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DTOs", "DTOs\DTOs.csproj", "{E70DD83F-8012-4D77-B89F-9B3744AF9296}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETAClient", "ETA\ETAClient\ETAClient.csproj", "{2B1EB030-171F-48CD-BEEA-A347410B08F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETAClient", "ETA\ETAClient\ETAClient.csproj", "{2B1EB030-171F-48CD-BEEA-A347410B08F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ETA", "ETA", "{698B2356-C39E-4579-A221-6767C8CA692A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETASupport", "ETA\ETASupport\ETASupport.csproj", "{E1910D32-CC6F-4F7D-AC04-D86B1BDBA425}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETASupport", "ETA\ETASupport\ETASupport.csproj", "{E1910D32-CC6F-4F7D-AC04-D86B1BDBA425}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeslaApi", "TeslaApi\TeslaApi.csproj", "{EE515D53-EA0F-48AC-B5EF-DFFD67450FC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{E1910D32-CC6F-4F7D-AC04-D86B1BDBA425}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1910D32-CC6F-4F7D-AC04-D86B1BDBA425}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1910D32-CC6F-4F7D-AC04-D86B1BDBA425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE515D53-EA0F-48AC-B5EF-DFFD67450FC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE515D53-EA0F-48AC-B5EF-DFFD67450FC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE515D53-EA0F-48AC-B5EF-DFFD67450FC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE515D53-EA0F-48AC-B5EF-DFFD67450FC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

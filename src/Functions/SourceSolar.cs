@@ -1,16 +1,13 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SourcesSupport;
-using DTOs;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
+using DTOs;
 
 namespace Functions
 {
@@ -20,7 +17,7 @@ namespace Functions
 		{
 			_config = config;
 		}
-		IConfiguration _config;
+		readonly IConfiguration _config;
 
 		[FunctionName("GetSolar")]
 		public async Task<IActionResult> Run(
@@ -35,9 +32,37 @@ namespace Functions
 			var solarHelper = new SolarHelper(solarEdgeLocationId, solarEdgeApiKey, log);
 
 			var solarData = await solarHelper.GetCurrentPowerAsync();
+			var gridDto = new TextDataDTO {
+				Id = "GRID_POWER",
+				Label = "Grid power (kW)",
+				Value = solarData.Grid.CurrentPower.ToString()
+			};
+			var houseDto = new TextDataDTO
+			{
+				Id = "HOUSE_POWER",
+				Label = "House power (kW)",
+				Value = solarData.House.CurrentPower.ToString()
+			};
+			var solarDto = new TextDataDTO
+			{
+				Id = "SOLAR_POWER",
+				Label = "Solar power (kW)",
+				Value = solarData.Solar.CurrentPower.ToString()
+			};
 
-			// TODO: Turn into SourceDTO
-			return new OkObjectResult(solarData);
+			var sourceDto = new SourceDTO
+			{
+				Id = "SOLAR",
+				Title = "Solar panel",
+				TimeStampUtc = DateTimeOffset.UtcNow,
+				DataItems = {
+					gridDto,
+					houseDto,
+					solarDto
+				}
+			};
+
+			return new OkObjectResult(sourceDto);
 		}
 	}
 }

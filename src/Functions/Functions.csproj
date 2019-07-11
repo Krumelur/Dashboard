@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
     <ProjectReference Include="..\SourcesSupport\SourcesSupport.csproj" />
+    <ProjectReference Include="..\TeslaApi\TeslaApi.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
