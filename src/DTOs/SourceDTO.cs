@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.Storage.Table;
+using System;
 using System.Collections.Generic;
 
 namespace DTOs
 {
-	public class SourceDTO
+	public class SourceDTO : TableEntity
 	{
 		public string Id { get; set; }
 		public DateTimeOffset TimeStampUtc { get; set; }
