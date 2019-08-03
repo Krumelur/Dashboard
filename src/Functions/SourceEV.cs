@@ -1,14 +1,15 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using SourcesSupport;
 using Microsoft.Extensions.Configuration;
 using TeslaApi;
 using System.Linq;
+using DTOs;
+using System;
+using System.Collections.Generic;
 
 namespace Functions
 {
@@ -40,7 +41,7 @@ namespace Functions
 				return new BadRequestObjectResult("Login credentials are not configured correctly.");
 			}
 
-			var teslaApi = new NativeTeslaApi(teslaClientId, teslaClientSecret, "Dashboard");
+			var teslaApi = new NativeApi(teslaClientId, teslaClientSecret, "Dashboard", 60);
 
 			var loginResponse = await teslaApi.LoginAsync(username, password);
 			if (!string.IsNullOrWhiteSpace(loginResponse.AccessToken))
@@ -54,9 +55,33 @@ namespace Functions
 			{
 				return new BadRequestObjectResult("Failed to get vehicle.");
 			}
-			
-			// TODO: Turn into SourceDTO
-			return new OkObjectResult("Vehicle data");
+
+			await teslaApi.WakeUpVehicleAsync(firstVehicle.Id);
+			var vehicleData = await teslaApi.GetVehicleDataAsync(firstVehicle.Id);
+
+			var dataItems = new List<DataItem>
+			{
+				new TextDataItem {
+					Id = "CHARGING_STATE",
+					Label = "Charging state",
+					Value = vehicleData.ChargeState.ChargingSate
+				},
+
+				new TextDataItem {
+					Id = "CHARGE_LEVEL",
+					Label = "Charge level",
+					Value = vehicleData.ChargeState.ChargeLevelPercent + "%"
+				}
+			};
+
+			var sourceData = new SourceData {
+				Id = "EV",
+				TimeStampUtc = DateTimeOffset.UtcNow,
+				Title = "Tesla",
+				DataItems = dataItems
+			};
+
+			return new OkObjectResult(sourceData);
 		}
 	}
 }

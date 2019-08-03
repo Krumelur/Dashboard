@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -13,15 +11,17 @@ namespace SourcesSupport
 	{
 		readonly static string SOLAR_EDGE_BASE_URL = "https://monitoringapi.solaredge.com/site";
 
-		public SolarHelper(int installationId, string apiKey, ILogger logger)
+		public SolarHelper(int installationId, string apiKey, int timeoutSeconds, ILogger logger)
 		{
 			_installationId = installationId;
 			_apiKey = apiKey;
+			_timeoutSeconds = timeoutSeconds;
 			_logger = logger;
 
 			FlurlHttp.Configure(settings => settings.OnError = LogHttpError);
-			FlurlHttp.GlobalSettings.Timeout = TimeSpan.FromSeconds(20);
 		}
+
+		readonly int _timeoutSeconds;
 
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		readonly string _apiKey;
@@ -31,6 +31,7 @@ namespace SourcesSupport
 		public async Task<CurrentPowerFlow> GetCurrentPowerAsync()
 		{
 			var result = await SOLAR_EDGE_BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegment(_installationId)
 				.AppendPathSegment("currentPowerFlow")
 				.SetQueryParam("api_key", _apiKey)

@@ -16,28 +16,28 @@ namespace TeslaApi
 	/// Allows communication with Tesla's restful APIs.
 	/// Possible thanks to: https://tesla-api.timdorr.com
 	/// </summary>
-	public class NativeTeslaApi
+	public class NativeApi
 	{
 		readonly string BASE_URL = "https://owner-api.teslamotors.com";
-		readonly TimeSpan DEFAULT_REQUEST_TIMEOUT = TimeSpan.FromSeconds(20);
-
+		
 		LoginResponse _loginResponse;
 		readonly string _userAgent;
+		readonly int _timeoutSeconds;
 		readonly string _teslaClientId;
 		readonly string _teslaClientSecret;
 
-		public NativeTeslaApi(string teslaClientId, string teslaClientSecret, string userAgent)
+		public NativeApi(string teslaClientId, string teslaClientSecret, string userAgent = "PickMeUpBuddy", int timeoutSeconds = 60)
 		{
 			FlurlHttp.Configure(settings => settings.OnError = LogFlurlError);
-			FlurlHttp.GlobalSettings.Timeout = DEFAULT_REQUEST_TIMEOUT;
 			_userAgent = userAgent;
+			_timeoutSeconds = timeoutSeconds;
 			_teslaClientId = teslaClientId;
 			_teslaClientSecret = teslaClientSecret;
 		}
 
 		void LogFlurlError(HttpCall call)
 		{
-			Debug.WriteLine($"[{nameof(NativeTeslaApi)}] Error: {call.Exception.Message}");
+			Debug.WriteLine($"[{nameof(NativeApi)}] Error: {call.Exception.Message}");
 			call.ExceptionHandled = false;
 		}
 
@@ -52,6 +52,7 @@ namespace TeslaApi
 		{
 			_loginResponse = await BASE_URL
 				.AppendPathSegment("oauth/token")
+				.WithTimeout(_timeoutSeconds)
 				.WithHeader("User-Agent", _userAgent)
 				.PostJsonAsync(new
 				{
@@ -75,6 +76,7 @@ namespace TeslaApi
 		public async Task<bool> AllowsMobileAccessAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var response = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegments("api/1/vehicles", id, "mobile_enabled")
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
@@ -92,6 +94,7 @@ namespace TeslaApi
 		public async Task<LoginResponse> RefreshToken(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			_loginResponse = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegment("oauth/token")
 				.WithHeader("User-Agent", _userAgent)
 				.PostJsonAsync(new
@@ -115,6 +118,7 @@ namespace TeslaApi
 		public async Task<List<VehicleResponse>> GetAllVehiclesAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var response = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegment("api/1/vehicles")
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
@@ -133,6 +137,7 @@ namespace TeslaApi
 		public async Task<VehicleResponse> GetVehicleAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var response = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegments("api/1/vehicles", id)
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
@@ -145,6 +150,48 @@ namespace TeslaApi
 		}
 
 		/// <summary>
+		/// Wakes the vehicle up. If a vehicle is sleeping, all calls will immediately timeout and return HTTP status 408.
+		/// </summary>
+		/// <param name="id">ID of the vehicle. This is the Id propety of VehicleResponse and NOT the VehicleId property!</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task<VehicleResponse> WakeUpVehicleAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var result = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
+				.AppendPathSegments("api/1/vehicles", id, "wake_up")
+				.WithHeader("User-Agent", _userAgent)
+				.WithOAuthBearerToken(_loginResponse.AccessToken)
+				.PostStringAsync(string.Empty, cancellationToken)
+				.ReceiveString()
+				.ConfigureAwait(false);
+
+			var vehicleStatus = ExtractInnerResponse<VehicleResponse>(result);
+			return vehicleStatus;
+		}
+
+		/// <summary>
+		/// Gets data about a sepcific vehicle. The returned data is a combination of smaller pieces of information that can also be returned separately.
+		/// </summary>
+		/// <param name="id">ID of the vehicle. This is the Id propety of VehicleResponse and NOT the VehicleId property!</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task<VehicleDataResponse> GetVehicleDataAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var response = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
+				.AppendPathSegments("api/1/vehicles", id, "/vehicle_data")
+				.WithHeader("User-Agent", _userAgent)
+				.WithOAuthBearerToken(_loginResponse.AccessToken)
+				.GetStringAsync(cancellationToken)
+				.ConfigureAwait(false);
+
+			var vehicleData= ExtractInnerResponse<VehicleDataResponse>(response);
+
+			return vehicleData;
+		}
+
+		/// <summary>
 		/// Gets status information about a sepcific vehicle.
 		/// </summary>
 		/// <param name="id">ID of the vehicle. This is the Id propety of VehicleResponse and NOT the VehicleId property!</param>
@@ -153,6 +200,7 @@ namespace TeslaApi
 		public async Task<VehicleStateResponse> GetVehicleStateAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var response = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegments("api/1/vehicles", id, "data_request/vehicle_state")
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
@@ -173,6 +221,7 @@ namespace TeslaApi
 		public async Task<DriveStateResponse> GetDriveStateAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var response = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegments("api/1/vehicles", id, "data_request/drive_state")
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
@@ -194,6 +243,7 @@ namespace TeslaApi
 		public async Task<StatusResponse> EnableClimateControlAsync(long id, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var result = await BASE_URL
+				.WithTimeout(_timeoutSeconds)
 				.AppendPathSegments("api/1/vehicles", id, "command", enabled ? "auto_conditioning_start" : "auto_conditioning_stop")
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
@@ -216,6 +266,7 @@ namespace TeslaApi
 		{
 			var result = await BASE_URL
 				.AppendPathSegments("api/1/vehicles", id, "command", locked ? "door_lock" : "door_unlock")
+				.WithTimeout(_timeoutSeconds)
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)
 				.PostStringAsync(string.Empty, cancellationToken)

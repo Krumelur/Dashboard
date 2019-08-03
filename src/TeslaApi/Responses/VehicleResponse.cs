@@ -8,7 +8,7 @@ namespace TeslaApi.Responses
 	public class VehicleResponse
 	{
 		/// <summary>
-		/// Access token for API calls.
+		/// ID of the vehicle
 		/// </summary>
 		[JsonProperty("id")]
 		public long Id { get; set; }

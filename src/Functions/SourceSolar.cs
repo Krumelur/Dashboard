@@ -29,28 +29,29 @@ namespace Functions
 			var solarEdgeApiKey = _config["SolarEdgeApiKey"];
 			var solarEdgeLocationId = Int32.Parse(_config["SolarEdgeLocationId"]);
 
-			var solarHelper = new SolarHelper(solarEdgeLocationId, solarEdgeApiKey, log);
+			var solarHelper = new SolarHelper(solarEdgeLocationId, solarEdgeApiKey, 60, log);
 
 			var solarData = await solarHelper.GetCurrentPowerAsync();
-			var gridDto = new TextDataDTO {
+			var gridDto = new TextDataItem
+			{
 				Id = "GRID_POWER",
 				Label = "Grid power (kW)",
 				Value = solarData.Grid.CurrentPower.ToString()
 			};
-			var houseDto = new TextDataDTO
+			var houseDto = new TextDataItem
 			{
 				Id = "HOUSE_POWER",
 				Label = "House power (kW)",
 				Value = solarData.House.CurrentPower.ToString()
 			};
-			var solarDto = new TextDataDTO
+			var solarDto = new TextDataItem
 			{
 				Id = "SOLAR_POWER",
 				Label = "Solar power (kW)",
 				Value = solarData.Solar.CurrentPower.ToString()
 			};
 
-			var sourceDto = new SourceDTO
+			var sourceDto = new SourceData
 			{
 				Id = "SOLAR",
 				Title = "Solar panel",

@@ -35,7 +35,7 @@ namespace Tests
 		[TestMethod]
 		public async Task GetSolarCurrentPower_ShouldReturnValidValues()
 		{
-			var solarHelper = new SolarHelper(_solarEdgeLocationId, _solarEdgeApiKey, null);
+			var solarHelper = new SolarHelper(_solarEdgeLocationId, _solarEdgeApiKey, 60, null);
 			var currentPower = await solarHelper.GetCurrentPowerAsync();
 			currentPower.Grid.Status.Should().Be("Active");
 		}

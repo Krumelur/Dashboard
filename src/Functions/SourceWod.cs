@@ -13,27 +13,28 @@ using System.Linq;
 
 namespace Functions
 {
-    public static class SourceWod
-    {
-        [FunctionName("GetWod")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "wod")] HttpRequest req,
-            ILogger log)
-        {
-            log.LogInformation("Requesting WOD");
+	public static class SourceWod
+	{
+		[FunctionName("GetWod")]
+		public static async Task<IActionResult> Run(
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "wod")] HttpRequest req,
+			ILogger log)
+		{
+			log.LogInformation("Requesting WOD");
 
 			// Extract WOD from website.
 			var textWods = await WodHelpers.GetRawWodAsync(log);
 
 			var dataItems = textWods
-				.Select<string, BaseDataDTO>(w => new TextDataDTO {
+				.Select<string, DataItem>(w => new TextDataItem
+				{
 					Id = $"WOD_PART_{textWods.IndexOf(w) + 1}",
 					Label = $"Part {textWods.IndexOf(w) + 1}",
 					Value = w,
 				})
 				.ToList();
 
-			var result = new SourceDTO
+			var result = new SourceData
 			{
 				Id = "WOD",
 				Title = "Workout of the day",
@@ -42,6 +43,6 @@ namespace Functions
 			};
 
 			return new OkObjectResult(result);
-        }
-    }
+		}
+	}
 }
