@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SourcesSupport;
 using Microsoft.Extensions.Configuration;
 using DTOs;
+using System.Collections.Generic;
 
 namespace Functions
 {
@@ -56,7 +57,7 @@ namespace Functions
 				Id = "SOLAR",
 				Title = "Solar panel",
 				TimeStampUtc = DateTimeOffset.UtcNow,
-				DataItems = {
+				DataItems = new List<DataItem> {
 					gridDto,
 					houseDto,
 					solarDto

@@ -8,7 +8,6 @@ namespace ETAClient
 	{
 		static async Task Main(string[] args)
 		{
-			// Pass arguments to docker: docker run etaclientimage arg1 arg2
 			var pollDelayHours = 1 / 60f / 60f;
 			var pelletsUnitBaseUrl = "http://192.168.178.22";
 
