@@ -81,18 +81,6 @@ namespace Functions
 				return null;
 			}
 			return sourceData;
-
-			//var rand = new Random();
-			//var delay = rand.Next(2000, 5000);
-			//log.LogInformation($"Sleeping for {delay}ms...");
-			//await Task.Delay(delay);
-
-			//return new SourceData
-			//{
-			//	Id = registryEntry.Name,
-			//	Title = "Title for" + registryEntry.Name,
-			//	TimeStampUtc = DateTimeOffset.UtcNow
-			//};
 		}
 
 		static async Task<string> ProcessSourceRegistry(DurableOrchestrationClient starter, CloudTable registryTable, ILogger log)
