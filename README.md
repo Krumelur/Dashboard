@@ -1,5 +1,7 @@
 # Dashboard
 
+![Build Pipeline](https://dev.azure.com/c-sharx-net/Dashboard/_apis/build/status/Dashboard-Azure%20Functions%20for%20.NET-CI)
+
 This is the source repo for a project I'm streaming live on Twitch. You can find the stream at:
 
 https://www.twitch.tv/reneruppert
