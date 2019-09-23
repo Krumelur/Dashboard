@@ -2,19 +2,9 @@
 
 ![Build Pipeline](https://dev.azure.com/c-sharx-net/Dashboard/_apis/build/status/Dashboard-Azure%20Functions%20for%20.NET-CI)
 
-This is the source repo for a project I'm streaming live on Twitch. You can find the stream at:
+This is the source repo for a project I'm working on for fun.
 
-https://www.twitch.tv/reneruppert
-
-**Please follow to not miss upcoming events!**
-
-Recorded versions of each session are available on Youtube:
-
-https://www.youtube.com/playlist?list=PLTDEGRa8OTnfBQprehS1IXtaed53i0iO5
-
-**Subscribe to be notified about new uploads!**
-
-If you'd like to contact me, feel free to use Twitter:
+**If you'd like to contact me, feel free to use Twitter**
 
 https://twitter.com/rene_ruppert
 
