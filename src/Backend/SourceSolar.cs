@@ -1,20 +1,18 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using DataItems;
 using Support;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using DataItems;
 
 namespace Functions
 {
-    public class SourceSolar
+	public class SourceSolar
     {
 		public SourceSolar(IConfiguration config)
 		{
@@ -37,27 +35,27 @@ namespace Functions
 			var solarData = await solarHelper.GetCurrentPowerAsync();
 			var gridDto = new TextDataItem
 			{
-				Id = "GRID_POWER",
-				Label = "Grid power (kW)",
+				Id = "grid_power",
+				Label = "Grid (kW)",
 				Value = solarData.Grid.CurrentPower.ToString()
 			};
 			var houseDto = new TextDataItem
 			{
-				Id = "HOUSE_POWER",
-				Label = "House power (kW)",
+				Id = "house_power",
+				Label = "House (kW)",
 				Value = solarData.House.CurrentPower.ToString()
 			};
 			var solarDto = new TextDataItem
 			{
-				Id = "SOLAR_POWER",
-				Label = "Solar power (kW)",
+				Id = "solar_power",
+				Label = "PV (kW)",
 				Value = solarData.Solar.CurrentPower.ToString()
 			};
 
 			var sourceDto = new SourceData
 			{
-				Id = "SOLAR",
-				Title = "Solar panel",
+				Id = "solar",
+				Title = "Photovoltaik",
 				TimeStampUtc = DateTimeOffset.UtcNow,
 				DataItems = new List<DataItem> {
 					gridDto,
