@@ -47,6 +47,7 @@ namespace Functions
 			var enabledConfigEntries = new List<SourceConfigEntry>();
 			foreach (var item in sourceConfigEntries)
 			{
+				// TODO: Add check if update is required (LastUpdateUtc)
 				if(item.IsEnabled)
 				{
 					enabledConfigEntries.Add(item);
@@ -57,9 +58,13 @@ namespace Functions
 			var allSourceData = new List<dynamic>();
 			foreach (var configEntry in enabledConfigEntries)
 			{
+				// For every source, run the "ReadSource" function but don't wait for it to return.
+				// Functions have a an execution timeout. If there are many sources or response is slow,
+				// we'd risk getting terminated by the runtime.				
 				var postUrl = req.Scheme + "://" + req.Host + "/api/harvest";
 
-				var ret = await postUrl
+				// Fire & forget. Read every source but don't wait.
+				/*var ret = await*/ postUrl
 					.WithTimeout(60)
 					.PostJsonAsync(configEntry)
 					.ReceiveJson<SourceConfigEntry>();
@@ -68,10 +73,12 @@ namespace Functions
 			return new OkObjectResult(enabledConfigEntries);
         }
 
-		[FunctionName("ReadSource")]
-        public async Task<IActionResult> ReadSource(
+		[FunctionName("PersistSource")]
+        public async Task<IActionResult> PersistSource(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "harvest")] HttpRequest req,
-            ILogger log)
+			[Table("dashboardsourceconfig")] CloudTable sourceConfigTable,
+            [Table("dashboardsourcedata")] CloudTable sourceDataTable,
+			ILogger log)
         {
 			log.LogInformation($"Harvesting specific source");
 
@@ -80,6 +87,7 @@ namespace Functions
 			try
 			{
 				sourceConfigEntry = JsonConvert.DeserializeObject<SourceConfigEntry>(content);
+				log.LogInformation(sourceConfigEntry.ToString());
 			}
 			catch (System.Exception ex)
 			{
@@ -87,20 +95,19 @@ namespace Functions
 				return new BadRequestObjectResult($"Failed to deserialize source config data: {ex}");
 			}
 
-			dynamic sourceData = null;
-			try
-			{
-				sourceData = await sourceConfigEntry.Url
-					.WithTimeout(60)
-					.GetJsonAsync();
-			}
-			catch (Exception ex)
-			{
-				log.LogError($"Failed to get source data for entry {sourceConfigEntry}: {ex}");
-				return new BadRequestObjectResult($"Failed to get source data for entry {sourceConfigEntry}: {ex}");
-			}
+			// Write back to storage with updated date/time.
+			sourceConfigEntry.LastUpdateUtc = DateTimeOffset.UtcNow;
+			await sourceConfigTable.ExecuteAsync(TableOperation.Replace(sourceConfigEntry));
 
-			return new OkObjectResult(sourceData);
+			// Read the source.
+			var sourceJson = await sourceConfigEntry.Url
+				.WithTimeout(60)
+				.GetJsonAsync();
+			
+			// TODO: Cannot insert dynamic
+			await sourceDataTable.ExecuteAsync(TableOperation.Insert(sourceJson));
+
+			return new OkObjectResult(sourceConfigEntry);
         }
     }
 }
