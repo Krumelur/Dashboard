@@ -15,17 +15,6 @@ using Newtonsoft.Json;
 
 namespace Functions
 {
-	public class SourceConfigEntry : TableEntity
-	{
-		public string Name { get; set; }
-		public string Url { get; set; }
-		public DateTimeOffset LastUpdateUtc { get; set; }
-		public int IntervalSeconds { get; set; }
-		public bool IsEnabled { get; set; }
-
-		public override string ToString() => $"[{nameof(SourceConfigEntry)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', IntervalSeconds = '{IntervalSeconds}', IsEnabled = '{IsEnabled}'";
-	}
-
 	[StorageAccount("StorageAccountConnectionString")]
 	public class Harvester
     {
@@ -43,50 +32,59 @@ namespace Functions
         {
 			log.LogInformation("Harvesting all sources");
 
-			var sourceConfigEntries = await sourceConfigTable.ExecuteQuerySegmentedAsync(new TableQuery<SourceConfigEntry>(), null);
-			var enabledConfigEntries = new List<SourceConfigEntry>();
-			foreach (var item in sourceConfigEntries)
+			var sourceConfigEntries = await sourceConfigTable.ExecuteQuerySegmentedAsync(new TableQuery<SourceConfigTableEntity>(), null);
+			var configEntriesToProcess = new List<SourceConfigTableEntity>();
+			
+			bool ignoreLastUpdate = false;
+			if(req.Query.ContainsKey("ignoreLastUpdate"))
 			{
-				// TODO: Add check if update is required (LastUpdateUtc)
-				if(item.IsEnabled)
+				Boolean.TryParse(req.Query["ignoreLastUpdate"], out ignoreLastUpdate);
+			}
+			foreach (var configEntry in sourceConfigEntries)
+			{
+				// Process all sources that are enabled and are overdue.
+				if(configEntry.IsEnabled && (ignoreLastUpdate || configEntry.LastUpdateUtc.AddSeconds(configEntry.IntervalSeconds) > DateTimeOffset.UtcNow))
 				{
-					enabledConfigEntries.Add(item);
+					log.LogInformation($"Config entry to be processed: {configEntry}");
+					configEntriesToProcess.Add(configEntry);
 				}
-				log.LogInformation(item.ToString());
+				else
+				{
+					log.LogInformation($"Config entry skipped (not enabled or not due): {configEntry}");
+				}
 			}
 
-			var allSourceData = new List<dynamic>();
-			foreach (var configEntry in enabledConfigEntries)
+			foreach (var configEntry in configEntriesToProcess)
 			{
-				// For every source, run the "ReadSource" function but don't wait for it to return.
+				// For every source, run the "PersistSource" function but don't wait for it to return.
 				// Functions have a an execution timeout. If there are many sources or response is slow,
 				// we'd risk getting terminated by the runtime.				
 				var postUrl = req.Scheme + "://" + req.Host + "/api/harvest";
 
 				// Fire & forget. Read every source but don't wait.
-				/*var ret = await*/ postUrl
+				var fireAndForgetTask = postUrl
 					.WithTimeout(60)
 					.PostJsonAsync(configEntry)
-					.ReceiveJson<SourceConfigEntry>();
+					.ReceiveJson<SourceConfigTableEntity>();
 			}
 			
-			return new OkObjectResult(enabledConfigEntries);
+			return new OkObjectResult(configEntriesToProcess);
         }
 
 		[FunctionName("PersistSource")]
         public async Task<IActionResult> PersistSource(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "harvest")] HttpRequest req,
 			[Table("dashboardsourceconfig")] CloudTable sourceConfigTable,
-            [Table("dashboardsourcedata")] CloudTable sourceDataTable,
+            [Table("dashboardsourcedatahistory")] CloudTable sourceDataHistoryTable,
 			ILogger log)
         {
 			log.LogInformation($"Harvesting specific source");
 
-			SourceConfigEntry sourceConfigEntry = null;
+			SourceConfigTableEntity sourceConfigEntry = null;
 			var content = await new StreamReader(req.Body).ReadToEndAsync();
 			try
 			{
-				sourceConfigEntry = JsonConvert.DeserializeObject<SourceConfigEntry>(content);
+				sourceConfigEntry = JsonConvert.DeserializeObject<SourceConfigTableEntity>(content);
 				log.LogInformation(sourceConfigEntry.ToString());
 			}
 			catch (System.Exception ex)
@@ -100,13 +98,40 @@ namespace Functions
 			await sourceConfigTable.ExecuteAsync(TableOperation.Replace(sourceConfigEntry));
 
 			// Read the source.
-			var sourceJson = await sourceConfigEntry.Url
-				.WithTimeout(60)
-				.GetJsonAsync();
-			
-			// TODO: Cannot insert dynamic
-			await sourceDataTable.ExecuteAsync(TableOperation.Insert(sourceJson));
+			SourceData sourceData = null;
+			try
+			{
+				var x = await sourceConfigEntry.Url
+					.WithTimeout(180)
+					.GetStringAsync();
 
+				sourceData = await sourceConfigEntry.Url
+					.WithTimeout(180)
+					.GetJsonAsync<SourceData>();
+			}
+			catch(Exception ex)
+			{
+				log.LogError($"Failed to get source data for entry {sourceConfigEntry}: {ex}");
+				return new BadRequestObjectResult($"Failed to get source data for entry {sourceConfigEntry}: {ex}");
+			}
+
+			// Write source result to history table.
+			var sourceDataHistoryTableEntity = new SourceDataHistoryTableEntity
+			{
+				SourceId = sourceData.Id,
+				DataItemsJson = "",
+				PartitionKey = sourceData.Id,
+				// Table storage does not support sorting. It sorts by partition key and
+				// row key. By using an inverted date, the newest record will always be the first.
+				RowKey = (DateTimeOffset.MaxValue.Ticks - sourceData.TimeStampUtc.Ticks).ToString("d19"),
+				TimeStampUtc = sourceData.TimeStampUtc
+			};
+			var insertResult = await sourceDataHistoryTable.ExecuteAsync(TableOperation.Insert(sourceDataHistoryTableEntity));
+			if(insertResult.HttpStatusCode != 200)
+			{
+				log.LogError($"Failed to save source history. HTTP error: {insertResult.HttpStatusCode}");
+				return new BadRequestObjectResult($"Failed to save source history. HTTP error: {insertResult.HttpStatusCode}");
+			}
 			return new OkObjectResult(sourceConfigEntry);
         }
     }
