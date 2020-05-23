@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Support;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using DataItems;
+using Data;
 
 namespace Functions
 {
@@ -33,19 +33,22 @@ namespace Functions
 			var solarHelper = new SolarHelper(solarEdgeLocationId, solarEdgeApiKey, 60, log);
 
 			var solarData = await solarHelper.GetCurrentPowerAsync();
-			var gridDto = new TextDataItem
+			
+			var gridDto = new 
 			{
 				Id = "grid_power",
-				Label = "Grid (kW)",
+				Label = "Netz (kW)",
 				Value = solarData.Grid.CurrentPower.ToString()
 			};
-			var houseDto = new TextDataItem
+
+			var houseDto = new 
 			{
 				Id = "house_power",
-				Label = "House (kW)",
+				Label = "Haus (kW)",
 				Value = solarData.House.CurrentPower.ToString()
 			};
-			var solarDto = new TextDataItem
+
+			var solarDto = new 
 			{
 				Id = "solar_power",
 				Label = "PV (kW)",
@@ -57,7 +60,7 @@ namespace Functions
 				Id = "solar",
 				Title = "Photovoltaik",
 				TimeStampUtc = DateTimeOffset.UtcNow,
-				DataItems = new List<DataItem> {
+				DataItems = new object[] {
 					gridDto,
 					houseDto,
 					solarDto

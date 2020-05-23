@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataItems
+namespace Data
 {
-	/// <summary>
-	/// Data structure returned by a source.
-	/// </summary>
-	public class SourceData
+    /// <summary>
+    /// Data structure returned by a source.
+    /// </summary>
+    public class SourceData
 	{
 		/// <summary>
 		/// Identifies this source. Identifiers are for example "WOD", "Solar", "EV".
@@ -26,7 +26,7 @@ namespace DataItems
 		/// <summary>
 		/// The individual data items the source provides. The "Solar" source may for example return items for daily production, current power and peak power.
 		/// </summary>
-		public List<DataItem> DataItems { get; set; }
+		public object[] DataItems { get; set; }
 
 		public override string ToString() => $"[{nameof(SourceData)}] Id = '{Id}', Title = '{Title}', TimeStamp = '{TimeStampUtc}'";
 	}

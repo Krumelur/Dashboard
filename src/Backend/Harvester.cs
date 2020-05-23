@@ -7,15 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using Microsoft.WindowsAzure.Storage.Table;
-using DataItems;
+using Data;
 using Flurl.Http;
 using System.IO;
 using Newtonsoft.Json;
 
 namespace Functions
 {
-	[StorageAccount("StorageAccountConnectionString")]
 	public class Harvester
     {
 		public Harvester(IConfiguration config)
@@ -25,36 +23,35 @@ namespace Functions
 		readonly IConfiguration _config;
 
         [FunctionName("ProcessSourceConfig")]
-        public async Task<IActionResult> ProcessSourceConfig(
+        public IActionResult ProcessSourceConfig(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "harvest")] HttpRequest req,
-			[Table("dashboardsourceconfig", "sourceconfig")] CloudTable sourceConfigTable,
+			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfigItem> sourceConfigItems,
             ILogger log)
         {
 			log.LogInformation("Harvesting all sources");
 
-			var sourceConfigEntries = await sourceConfigTable.ExecuteQuerySegmentedAsync(new TableQuery<SourceConfigTableEntity>(), null);
-			var configEntriesToProcess = new List<SourceConfigTableEntity>();
+			var configItemsToProcess = new List<SourceConfigItem>();
 			
 			bool ignoreLastUpdate = false;
 			if(req.Query.ContainsKey("ignoreLastUpdate"))
 			{
 				Boolean.TryParse(req.Query["ignoreLastUpdate"], out ignoreLastUpdate);
 			}
-			foreach (var configEntry in sourceConfigEntries)
+			foreach (var sourceConfigItem in sourceConfigItems)
 			{
 				// Process all sources that are enabled and are overdue.
-				if(configEntry.IsEnabled && (ignoreLastUpdate || configEntry.LastUpdateUtc.AddSeconds(configEntry.IntervalSeconds) > DateTimeOffset.UtcNow))
+				if(sourceConfigItem.IsEnabled && (ignoreLastUpdate || sourceConfigItem.LastUpdateUtc == DateTimeOffset.MinValue || sourceConfigItem.LastUpdateUtc.AddMinutes(sourceConfigItem.IntervalMinutes) > DateTimeOffset.UtcNow))
 				{
-					log.LogInformation($"Config entry to be processed: {configEntry}");
-					configEntriesToProcess.Add(configEntry);
+					log.LogInformation($"Config entry to be processed: {sourceConfigItem}");
+					configItemsToProcess.Add(sourceConfigItem);
 				}
 				else
 				{
-					log.LogInformation($"Config entry skipped (not enabled or not due): {configEntry}");
+					log.LogInformation($"Config entry skipped (not enabled or not due): {sourceConfigItem}");
 				}
 			}
 
-			foreach (var configEntry in configEntriesToProcess)
+			foreach (var sourceConfigItem in configItemsToProcess)
 			{
 				// For every source, run the "PersistSource" function but don't wait for it to return.
 				// Functions have a an execution timeout. If there are many sources or response is slow,
@@ -64,28 +61,29 @@ namespace Functions
 				// Fire & forget. Read every source but don't wait.
 				var fireAndForgetTask = postUrl
 					.WithTimeout(60)
-					.PostJsonAsync(configEntry)
-					.ReceiveJson<SourceConfigTableEntity>();
+					.PostJsonAsync(sourceConfigItem)
+					.ReceiveJson<SourceConfigItem>();
 			}
 			
-			return new OkObjectResult(configEntriesToProcess);
+			return new OkObjectResult(configItemsToProcess);
         }
 
 		[FunctionName("PersistSource")]
         public async Task<IActionResult> PersistSource(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "harvest")] HttpRequest req,
-			[Table("dashboardsourceconfig")] CloudTable sourceConfigTable,
-            [Table("dashboardsourcedatahistory")] CloudTable sourceDataHistoryTable,
-			ILogger log)
+			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceConfigItem> updatedSourceConfigItems,
+           	[CosmosDB("dashboard", "sourcedatahistory", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceDataHistoryItem> sourceDataHistoryItems,
+           	ILogger log)
         {
 			log.LogInformation($"Harvesting specific source");
 
-			SourceConfigTableEntity sourceConfigEntry = null;
+			// Get source config item from the request's body.
+			SourceConfigItem sourceConfigItem = null;
 			var content = await new StreamReader(req.Body).ReadToEndAsync();
 			try
 			{
-				sourceConfigEntry = JsonConvert.DeserializeObject<SourceConfigTableEntity>(content);
-				log.LogInformation(sourceConfigEntry.ToString());
+				sourceConfigItem = JsonConvert.DeserializeObject<SourceConfigItem>(content);
+				log.LogInformation(sourceConfigItem.ToString());
 			}
 			catch (System.Exception ex)
 			{
@@ -93,46 +91,37 @@ namespace Functions
 				return new BadRequestObjectResult($"Failed to deserialize source config data: {ex}");
 			}
 
-			// Write back to storage with updated date/time.
-			sourceConfigEntry.LastUpdateUtc = DateTimeOffset.UtcNow;
-			await sourceConfigTable.ExecuteAsync(TableOperation.Replace(sourceConfigEntry));
-
 			// Read the source.
 			SourceData sourceData = null;
 			try
 			{
-				var x = await sourceConfigEntry.Url
-					.WithTimeout(180)
-					.GetStringAsync();
-
-				sourceData = await sourceConfigEntry.Url
+				sourceData = await sourceConfigItem.Url
 					.WithTimeout(180)
 					.GetJsonAsync<SourceData>();
+
+				// Write back to storage with updated date/time.
+				sourceConfigItem.LastUpdateUtc = DateTimeOffset.UtcNow;
+				await updatedSourceConfigItems.AddAsync(sourceConfigItem);
 			}
 			catch(Exception ex)
 			{
-				log.LogError($"Failed to get source data for entry {sourceConfigEntry}: {ex}");
-				return new BadRequestObjectResult($"Failed to get source data for entry {sourceConfigEntry}: {ex}");
+				log.LogError($"Failed to get source data for entry {sourceConfigItem}: {ex}");
+				return new BadRequestObjectResult($"Failed to get source data for entry {sourceConfigItem}: {ex}");
 			}
 
 			// Write source result to history table.
-			var sourceDataHistoryTableEntity = new SourceDataHistoryTableEntity
+			var sourceDataHistoryItem = new SourceDataHistoryItem
 			{
+				Id = Guid.NewGuid().ToString(),
 				SourceId = sourceData.Id,
-				DataItemsJson = "",
-				PartitionKey = sourceData.Id,
-				// Table storage does not support sorting. It sorts by partition key and
-				// row key. By using an inverted date, the newest record will always be the first.
-				RowKey = (DateTimeOffset.MaxValue.Ticks - sourceData.TimeStampUtc.Ticks).ToString("d19"),
+				DataItems = sourceData.DataItems,
 				TimeStampUtc = sourceData.TimeStampUtc
 			};
-			var insertResult = await sourceDataHistoryTable.ExecuteAsync(TableOperation.Insert(sourceDataHistoryTableEntity));
-			if(insertResult.HttpStatusCode != 200)
-			{
-				log.LogError($"Failed to save source history. HTTP error: {insertResult.HttpStatusCode}");
-				return new BadRequestObjectResult($"Failed to save source history. HTTP error: {insertResult.HttpStatusCode}");
-			}
-			return new OkObjectResult(sourceConfigEntry);
+			
+			await sourceDataHistoryItems.AddAsync(sourceDataHistoryItem);
+
+			return new OkObjectResult(sourceConfigItem);
         }
     }
+	
 }
