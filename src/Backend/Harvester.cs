@@ -22,6 +22,31 @@ namespace Functions
 		}
 		readonly IConfiguration _config;
 
+		[FunctionName("AutoTriggerSourceConfigProcessing")]
+        public async Task AutoTriggerSourceConfigProcessing(
+#if DEBUG
+			[TimerTrigger("%HarvesterSchedule%", RunOnStartup = true)] TimerInfo timerInfo,
+#else
+			[TimerTrigger("%HarvesterSchedule%", RunOnStartup = false)] TimerInfo timerInfo,
+#endif
+            ILogger log)
+        {
+			var harvesterUrl = _config["HarvesterUrl"];
+
+			var nextRun = timerInfo.Schedule.GetNextOccurrence(DateTime.UtcNow);
+			log.LogInformation($"Starting harvester at URL {harvesterUrl}. Next occurrence will by at UTC {nextRun}");
+
+				// Fire & forget. Read every source but don't wait.
+			var processedSourceConfigItems = await harvesterUrl
+					.WithTimeout(60)
+					.GetJsonAsync<List<SourceConfigItem>>();
+
+			foreach (var item in processedSourceConfigItems)
+			{
+				log.LogInformation($"Auto trigger processed: {item}");	
+			}
+		}
+
         [FunctionName("ProcessSourceConfig")]
         public IActionResult ProcessSourceConfig(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "harvest")] HttpRequest req,
