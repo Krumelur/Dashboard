@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Data
+namespace Dashboard.Models
 {
     /// <summary>
     /// Data structure returned by a source.
@@ -26,7 +26,7 @@ namespace Data
 		/// <summary>
 		/// The individual data items the source provides. The "Solar" source may for example return items for daily production, current power and peak power.
 		/// </summary>
-		public object[] DataItems { get; set; }
+		public DataItem[] DataItems { get; set; }
 
 		public override string ToString() => $"[{nameof(SourceData)}] Id = '{Id}', Title = '{Title}', TimeStamp = '{TimeStampUtc}'";
 	}

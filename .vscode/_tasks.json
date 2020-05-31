@@ -2,84 +2,76 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "clean all",
+			"label": "clean",
 			"command": "dotnet",
 			"args": [
-				"clean"
-			],
-			"type": "process",
-            "group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"problemMatcher": "$msCompile",
-			"options": {
-				"cwd": "${workspaceFolder}/src"
-			}
-        },
-		{
-			"label": "build Models",
-			"command": "dotnet",
-			"args": [
-				"build",
+				"clean",
 				"/property:GenerateFullPaths=true",
 				"/consoleloggerparameters:NoSummary"
 			],
 			"type": "process",
-            "dependsOn": "clean",
-            "group": {
-				"kind": "build",
-				"isDefault": true
-			},
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/src/Models"
-			}
-        },
-        {
-			"label": "build Sources",
-			"command": "dotnet",
-			"args": [
-				"build",
-				"/property:GenerateFullPaths=true",
-				"/consoleloggerparameters:NoSummary"
-			],
-			"type": "process",
-            "dependsOn": "clean",
-            "group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"problemMatcher": "$msCompile",
-			"options": {
-				"cwd": "${workspaceFolder}/src/Server/Sources"
-			}
-        },
-        {
-			"label": "build Harvester",
-			"command": "dotnet",
-			"args": [
-				"build",
-				"/property:GenerateFullPaths=true",
-				"/consoleloggerparameters:NoSummary"
-			],
-			"type": "process",
-            "dependsOn": "clean",
-            "group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"problemMatcher": "$msCompile",
-			"options": {
-				"cwd": "${workspaceFolder}/src/Server/Harvester"
+				"cwd": "${workspaceFolder}/src/Backend"
 			}
 		},
 		{
-			"label": "func",
-			"type": "func",
-			"dependsOn": "build Harvester",
+			"label": "build",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"type": "process",
+			"dependsOn": "clean",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/src/Server/Harvester/bin/Debug/netcoreapp3.1"
+				"cwd": "${workspaceFolder}/src/Server/DataSources"
+			}
+		},
+		{
+			"label": "clean release",
+			"command": "dotnet",
+			"args": [
+				"clean",
+				"--configuration",
+				"Release",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"type": "process",
+			"problemMatcher": "$msCompile",
+			"options": {
+				"cwd": "${workspaceFolder}/src/Backend"
+			}
+		},
+		{
+			"label": "publish",
+			"command": "dotnet",
+			"args": [
+				"publish",
+				"--configuration",
+				"Release",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"type": "process",
+			"dependsOn": "clean release",
+			"problemMatcher": "$msCompile",
+			"options": {
+				"cwd": "${workspaceFolder}/src/Backend"
+			}
+		},
+		{
+			"type": "func",
+			"dependsOn": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/src/Backend/bin/Debug/netcoreapp3.1"
 			},
 			"command": "host start",
 			"isBackground": true,

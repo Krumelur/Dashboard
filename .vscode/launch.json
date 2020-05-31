@@ -1,9 +1,8 @@
 {
     "version": "0.2.0",
-    "configurations": [
-        
+    "configurations": [   
         {
-            "name": "Attach to .NET Functions",
+            "name": "Debug Harvester Functions",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:azureFunctions.pickProcess}"

@@ -4,13 +4,13 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Support
+namespace Dashboard.Server.Sources.SolarEdge
 {
-	public class SolarHelper
+	public class SolarEdgeHelper
 	{
 		readonly static string SOLAR_EDGE_BASE_URL = "https://monitoringapi.solaredge.com/site";
 
-		public SolarHelper(int installationId, string apiKey, int timeoutSeconds, ILogger logger)
+		public SolarEdgeHelper(int installationId, string apiKey, int timeoutSeconds, ILogger logger)
 		{
 			_installationId = installationId;
 			_apiKey = apiKey;
