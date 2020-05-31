@@ -102,7 +102,7 @@ namespace Dashboard.Server.Harvester
 			foreach (var sourceConfigItem in sourceConfigItems)
 			{
 				// Process all sources that are enabled and are overdue.
-				if(sourceConfigItem.IsEnabled && (ignoreLastUpdate || sourceConfigItem.LastUpdateUtc == DateTimeOffset.MinValue || sourceConfigItem.LastUpdateUtc.AddMinutes(sourceConfigItem.IntervalMinutes) > DateTimeOffset.UtcNow))
+				if(sourceConfigItem.IsEnabled && (ignoreLastUpdate || sourceConfigItem.LastUpdateUtc == DateTimeOffset.MinValue || sourceConfigItem.LastUpdateUtc.AddMinutes(sourceConfigItem.IntervalMinutes) < DateTimeOffset.UtcNow))
 				{
 					log.LogInformation($"Config entry to be processed: {sourceConfigItem}");
 					configItemsToProcess.Add(sourceConfigItem);
