@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "src\\Server\\Sources"
+		},
+		{
+			"path": "src\\Server\\Harvester"
+		},
+		{
+			"path": "src\\Models"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"debug.internalConsoleOptions": "neverOpen"
+	},
+	"launch": {
+        "configurations": [],
+        "compounds": [
+            {
+                "name": "Attach to function apps",
+                "configurations": [
+                    "Attach to Sources Functions",
+                    "Attach to Harvester Functions"
+                ]
+            }
+        ]
+    }
+}
