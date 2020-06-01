@@ -19,6 +19,7 @@ Regular:
 
 Secrets:
 {
+    "FunctionsAuthKey": "...",
     "CosmosDbConnectionString": "AccountEndpoint=https://..."
 }
 
@@ -31,6 +32,7 @@ none
 
 Secrets:
 {
+    "FunctionsAuthKey": "...",
     "SolarEdgeApiKey": "8H...",
     "SolarEdgeLocationId": "4...",
  }

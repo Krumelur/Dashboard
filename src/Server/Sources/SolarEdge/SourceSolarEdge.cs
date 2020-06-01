@@ -20,7 +20,7 @@ namespace Dashboard.Server.Sources.SolarEdge
 
         [FunctionName("solaredge")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "solar")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "solar")] HttpRequest req,
             ILogger log)
         {
 			log.LogInformation("Requesting solar data");

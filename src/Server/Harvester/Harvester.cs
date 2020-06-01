@@ -44,9 +44,15 @@ namespace Dashboard.Server.Harvester
 				return;
 			}
 
+			var funcAuthKey = _config["FunctionsAuthKey"];
+			if(String.IsNullOrWhiteSpace(funcAuthKey))
+			{
+				log.LogError("Failed to retrieve authorization key. Is it added to the configuration?");
+				return;
+			}
+
 			var nextRun = timerInfo.Schedule.GetNextOccurrence(DateTime.UtcNow);
 			log.LogInformation($"Starting harvester at URL {harvesterUrl}. Next occurrence will by at UTC {nextRun}");
-
 
 			// var client = new HttpClient();
 			// var r = await client.GetStringAsync(harvesterUrl);
@@ -58,6 +64,7 @@ namespace Dashboard.Server.Harvester
 				// I presume the functions runtime isn't done initializing and will throw an error stating
 				// that the connection was actively refused.
 				 processedSourceConfigItems = await harvesterUrl
+					.WithHeader("x-functions-key", funcAuthKey)
 					.WithTimeout(60)
 					.GetJsonAsync<List<SourceConfigItem>>();
 
@@ -87,7 +94,7 @@ namespace Dashboard.Server.Harvester
 		/// <returns>A list of source configuration entries that were processed</returns>
         [FunctionName("HarvestConfiguredSources")]
         public async Task<IActionResult> HarvestConfiguredSources(
-			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "harvestconfiguredsources")] HttpRequest req,
+			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "harvestconfiguredsources")] HttpRequest req,
 			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfigItem> sourceConfigItems,
             ILogger log)
         {
@@ -105,6 +112,12 @@ namespace Dashboard.Server.Harvester
 			if(req.Query.ContainsKey("awaitCompletion"))
 			{
 				Boolean.TryParse(req.Query["awaitCompletion"], out awaitCompletion);
+			}
+
+			var funcAuthKey = _config["FunctionsAuthKey"];
+			if(String.IsNullOrWhiteSpace(funcAuthKey))
+			{
+				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
 			}
 
 			foreach (var sourceConfigItem in sourceConfigItems)
@@ -134,6 +147,7 @@ namespace Dashboard.Server.Harvester
 				{
 					// Fire & forget. Read every source but don't wait.
 					var fireAndForgetTask = postUrl
+						.WithHeader("x-functions-key", funcAuthKey)
 						.WithTimeout(60)
 						.PostJsonAsync(sourceConfigItem)
 						.ReceiveJson<SourceConfigItem>();
@@ -168,7 +182,7 @@ namespace Dashboard.Server.Harvester
 		/// <returns>An object with two properties, the updated source configuration item and the history item</returns>
 		[FunctionName("HarvestAndPersistSource")]
         public async Task<IActionResult> HarvestAndPersistSource(
-			[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "harvestsource")] HttpRequest req,
+			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "harvestsource")] HttpRequest req,
 			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceConfigItem> updatedSourceConfigItems,
            	[CosmosDB("dashboard", "sourcedatahistory", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceDataHistoryItem> sourceDataHistoryItems,
            	ILogger log)
