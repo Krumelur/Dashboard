@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Dashboard.Models
+﻿namespace Dashboard.Models
 {
 	public enum DataItemType
 	{
-		Text,
-		Integer,
-		Decimal,
-		Percentage,
-		Bar,
+		Text = 1,
+		Integer = 1,
+		Decimal = 2,
 	}
 
     /// <summary>
@@ -18,7 +13,9 @@ namespace Dashboard.Models
     public class DataItem
 	{
 		public string Id { get; set; }
-		public DataItemType Type { get; set; }
+
+		public DataItemType Type { get; set; } = DataItemType.Text;
+
 		public string Label { get; set; }
 
 		public object Value { get; set; }
