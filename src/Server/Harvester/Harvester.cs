@@ -86,7 +86,7 @@ namespace Dashboard.Server.Harvester
 		/// </summary>
 		/// <returns>A list of source configuration entries that were processed</returns>
         [FunctionName("HarvestConfiguredSources")]
-        public IActionResult HarvestConfiguredSources(
+        public async Task<IActionResult> HarvestConfiguredSources(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "harvestconfiguredsources")] HttpRequest req,
 			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfigItem> sourceConfigItems,
             ILogger log)
@@ -128,7 +128,7 @@ namespace Dashboard.Server.Harvester
 				// we'd risk getting terminated by the runtime.				
 				var postUrl = req.Scheme + "://" + req.Host + "/api/harvest";
 
-				Log.LogInformation($"About to harvest source ID '{sourceConfigItem.Id}' ('{sourceConfigItem.Name}') using URL '{postUrl}'");
+				log.LogInformation($"About to harvest source ID '{sourceConfigItem.Id}' ('{sourceConfigItem.Name}') using URL '{postUrl}'");
 				
 				try
 				{
