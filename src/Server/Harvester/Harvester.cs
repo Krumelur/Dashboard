@@ -82,6 +82,7 @@ namespace Dashboard.Server.Harvester
 		/// 
 		/// Supported query parameters:
 		///   ignoreLastUpdate (boolean): TRUE to process enabled sources even if the are not due
+		///   awaitCompletion (boolean): TRUE to await every call to to the source specific harvesting - useful for debugging
 		/// </summary>
 		/// <returns>A list of source configuration entries that were processed</returns>
         [FunctionName("HarvestConfiguredSources")]
@@ -99,6 +100,13 @@ namespace Dashboard.Server.Harvester
 			{
 				Boolean.TryParse(req.Query["ignoreLastUpdate"], out ignoreLastUpdate);
 			}
+
+			bool awaitCompletion = false;
+			if(req.Query.ContainsKey("awaitCompletion"))
+			{
+				Boolean.TryParse(req.Query["awaitCompletion"], out awaitCompletion);
+			}
+
 			foreach (var sourceConfigItem in sourceConfigItems)
 			{
 				// Process all sources that are enabled and are overdue.
@@ -120,11 +128,28 @@ namespace Dashboard.Server.Harvester
 				// we'd risk getting terminated by the runtime.				
 				var postUrl = req.Scheme + "://" + req.Host + "/api/harvest";
 
-				// Fire & forget. Read every source but don't wait.
-				var fireAndForgetTask = postUrl
-					.WithTimeout(60)
-					.PostJsonAsync(sourceConfigItem)
-					.ReceiveJson<SourceConfigItem>();
+				Log.LogInformation($"About to harvest source ID '{sourceConfigItem.Id}' ('{sourceConfigItem.Name}') using URL '{postUrl}'");
+				
+				try
+				{
+					// Fire & forget. Read every source but don't wait.
+					var fireAndForgetTask = postUrl
+						.WithTimeout(60)
+						.PostJsonAsync(sourceConfigItem)
+						.ReceiveJson<SourceConfigItem>();
+
+					if(awaitCompletion)
+					{
+						log.LogInformation($"Awaiting completion of source ID '{sourceConfigItem.Id}' ('{sourceConfigItem.Name}')");
+						var harvestedData = await fireAndForgetTask;
+
+						log.LogInformation($"Received source config item: '{harvestedData}'");
+					}
+				}
+				catch(Exception ex)
+				{
+					log.LogError($"Error while calling harvester for source ID '{sourceConfigItem.Id}' ('{sourceConfigItem.Name}') using URL '{postUrl}': {ex}");
+				}
 			}
 			
 			return new OkObjectResult(configItemsToProcess);
@@ -140,7 +165,7 @@ namespace Dashboard.Server.Harvester
 		/// The source to be processed must be passed in the request body as a JSON representation of
 		/// a SourceConfigItem instance. 
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>An object with two properties, the updated source configuration item and the history item</returns>
 		[FunctionName("HarvestAndPersistSource")]
         public async Task<IActionResult> HarvestAndPersistSource(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "harvestsource")] HttpRequest req,
@@ -193,7 +218,10 @@ namespace Dashboard.Server.Harvester
 			
 			await sourceDataHistoryItems.AddAsync(sourceDataHistoryItem);
 
-			return new OkObjectResult(sourceConfigItem);
+			return new OkObjectResult(new  {
+				updatedSourceConfigEntry = sourceConfigItem,
+				historyEntry = sourceDataHistoryItem
+			});
         }
     }
 	
