@@ -61,8 +61,8 @@ namespace Dashboard.Server.Sources.SolarEdge
 				Id = "solar_performance",
 				Type = DataItemType.Bar,
 				ReferenceValue = 9.8,
-				Label = "PV (kW)",
-				Value = solarData.Solar.CurrentPower.ToString()
+				Label = "Performance",
+				Value = solarData.Solar.CurrentPower
 			};
 
 			var sourceDto = new SourceData
