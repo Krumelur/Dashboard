@@ -4,7 +4,7 @@
 	{
 		Text = 1,
 		Integer = 1,
-		Decimal = 2,
+		Decimal = 2
 	}
 
     /// <summary>
@@ -20,8 +20,6 @@
 
 		public object Value { get; set; }
 
-		public object ReferenceValue { get; set; }
-
-		public override string ToString() => $"[{nameof(DataItem)}] Id = '{Id}', Type = '{Type}', Label = '{Label}', Value = '{Value}', Reference value = '{ReferenceValue}'";
+		public override string ToString() => $"[{nameof(DataItem)}] Id = '{Id}', Type = '{Type}', Label = '{Label}', Value = '{Value}'";
 	}
 }

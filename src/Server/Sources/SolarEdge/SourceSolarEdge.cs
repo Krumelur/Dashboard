@@ -59,10 +59,9 @@ namespace Dashboard.Server.Sources.SolarEdge
 			var solarPerformanceDto = new DataItem
 			{
 				Id = "solar_performance",
-				Type = DataItemType.Bar,
-				ReferenceValue = 9.8,
-				Label = "Performance",
-				Value = solarData.Solar.CurrentPower
+				Type = DataItemType.Decimal,
+				Label = "Performance (%)",
+				Value = solarData.Solar.CurrentPower / 9.8f
 			};
 
 			var sourceDto = new SourceData
