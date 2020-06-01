@@ -115,7 +115,7 @@ namespace Dashboard.Server.Harvester
 			}
 
 			var harvesterFuncAuthKey = _config["HarvesterFunctionsAuthKey"];
-			if(String.IsNullOrWhiteSpace(funcAuthKey))
+			if(String.IsNullOrWhiteSpace(harvesterFuncAuthKey))
 			{
 				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
 			}
