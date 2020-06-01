@@ -126,7 +126,7 @@ namespace Dashboard.Server.Harvester
 				// For every source, run the "PersistSource" function but don't wait for it to return.
 				// Functions have a an execution timeout. If there are many sources or response is slow,
 				// we'd risk getting terminated by the runtime.				
-				var postUrl = req.Scheme + "://" + req.Host + "/api/harvest";
+				var postUrl = req.Scheme + "://" + req.Host + "/api/harvestsource";
 
 				log.LogInformation($"About to harvest source ID '{sourceConfigItem.Id}' ('{sourceConfigItem.Name}') using URL '{postUrl}'");
 				
