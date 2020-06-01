@@ -44,10 +44,10 @@ namespace Dashboard.Server.Harvester
 				return;
 			}
 
-			var funcAuthKey = _config["FunctionsAuthKey"];
-			if(String.IsNullOrWhiteSpace(funcAuthKey))
+			var harvesterFuncAuthKey = _config["HarvesterFunctionsAuthKey"];
+			if(String.IsNullOrWhiteSpace(harvesterFuncAuthKey))
 			{
-				log.LogError("Failed to retrieve authorization key. Is it added to the configuration?");
+				log.LogError("Failed to retrieve harvester authorization key. Is it added to the configuration?");
 				return;
 			}
 
@@ -64,7 +64,7 @@ namespace Dashboard.Server.Harvester
 				// I presume the functions runtime isn't done initializing and will throw an error stating
 				// that the connection was actively refused.
 				 processedSourceConfigItems = await harvesterUrl
-					.WithHeader("x-functions-key", funcAuthKey)
+					.WithHeader("x-functions-key", harvesterFuncAuthKey)
 					.WithTimeout(60)
 					.GetJsonAsync<List<SourceConfigItem>>();
 
@@ -114,7 +114,7 @@ namespace Dashboard.Server.Harvester
 				Boolean.TryParse(req.Query["awaitCompletion"], out awaitCompletion);
 			}
 
-			var funcAuthKey = _config["FunctionsAuthKey"];
+			var harvesterFuncAuthKey = _config["HarvesterFunctionsAuthKey"];
 			if(String.IsNullOrWhiteSpace(funcAuthKey))
 			{
 				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
@@ -147,7 +147,7 @@ namespace Dashboard.Server.Harvester
 				{
 					// Fire & forget. Read every source but don't wait.
 					var fireAndForgetTask = postUrl
-						.WithHeader("x-functions-key", funcAuthKey)
+						.WithHeader("x-functions-key", harvesterFuncAuthKey)
 						.WithTimeout(60)
 						.PostJsonAsync(sourceConfigItem)
 						.ReceiveJson<SourceConfigItem>();
@@ -203,11 +203,19 @@ namespace Dashboard.Server.Harvester
 				return new BadRequestObjectResult($"Failed to deserialize source config data: {ex}");
 			}
 
+			// TODO: Not all sources will be functions...the source configuration should contain source specific authorization codes.
+			var sourcesFuncAuthKey = _config["SourcesFunctionsAuthKey"];
+			if(String.IsNullOrWhiteSpace(sourcesFuncAuthKey))
+			{
+				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
+			}
+
 			// Read the source.
 			SourceData sourceData = null;
 			try
 			{
 				sourceData = await sourceConfigItem.Url
+					.WithHeader("x-functions-key", sourcesFuncAuthKey)
 					.WithTimeout(180)
 					.GetJsonAsync<SourceData>();
 
