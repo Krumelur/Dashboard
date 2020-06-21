@@ -33,11 +33,10 @@ namespace DashboardClient
             });
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-
             builder.RootComponents.Add<App>("app");
 
             var host = builder.Build();
-
+            
             host.Services
               .UseBootstrapProviders()
               .UseFontAwesomeIcons();
