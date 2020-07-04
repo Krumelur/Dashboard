@@ -24,9 +24,15 @@ namespace Dashboard.Server.Harvester
 		public DateTimeOffset LastUpdateUtc { get; set; }
 		
 		public int IntervalMinutes { get; set; }
+
+		/// <summary>
+		/// ID of the newest history item for this source.
+		/// </summary>
+		/// <value></value>
+		public string LatestHistoryItemId { get; set; }
 		
 		public bool IsEnabled { get; set; }
 
-		public override string ToString() => $"[{nameof(SourceConfigItem)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', IntervalMinutes = '{IntervalMinutes}', IsEnabled = '{IsEnabled}'";
+		public override string ToString() => $"[{nameof(SourceConfigItem)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', LatestHistoryItemId = '{LatestHistoryItemId}', IntervalMinutes = '{IntervalMinutes}', IsEnabled = '{IsEnabled}'";
 	}
 }

@@ -1,0 +1,5 @@
+@baseUrl = http://localhost:7072/api
+
+
+# Get latest history items for all sources
+GET {{baseUrl}}/latestsourcedatahistory

@@ -15,6 +15,10 @@ using System.Net.Http;
 
 namespace Dashboard.Server.Harvester
 {
+	/// <summary>
+	/// Collection of functions that help reading the configured sources and, poll them and
+	/// write the results back into a history table.
+	/// </summary>
     public class Harvester
     {
 		public Harvester(IConfiguration config)
@@ -36,6 +40,7 @@ namespace Dashboard.Server.Harvester
 			[TimerTrigger("%HarvesterSchedule%", RunOnStartup = false)] TimerInfo timerInfo,
             ILogger log)
         {
+			// This URL should be pointing to the route of HarvestConfiguredSources().
 			var harvesterUrl = _config["HarvesterUrl"];
 
 			if(string.IsNullOrWhiteSpace(harvesterUrl))
@@ -82,6 +87,9 @@ namespace Dashboard.Server.Harvester
 
 		/// <summary>
 		/// HTTP triggered function (GET).
+		/// 
+		/// This is called from TriggerSourceHarvesterByTimer().
+		/// 
 		/// Reads source configurations from the collection 'sourceconfig' in the database 'dashboard'
 		/// found at the Cosmos DB instance configured by the connection string 'CosmosDbConnectionString'.
 		/// All enabled sources that are due for processing will be polled.
@@ -221,7 +229,6 @@ namespace Dashboard.Server.Harvester
 
 				// Write back to storage with updated date/time.
 				sourceConfigItem.LastUpdateUtc = DateTimeOffset.UtcNow;
-				await updatedSourceConfigItems.AddAsync(sourceConfigItem);
 			}
 			catch(Exception ex)
 			{
@@ -239,6 +246,10 @@ namespace Dashboard.Server.Harvester
 			};
 			
 			await sourceDataHistoryItems.AddAsync(sourceDataHistoryItem);
+
+			// Store the ID of the latest history item in the source config for easy access.
+			sourceConfigItem.LatestHistoryItemId = sourceDataHistoryItem.Id;
+			await updatedSourceConfigItems.AddAsync(sourceConfigItem);
 
 			return new OkObjectResult(new  {
 				updatedSourceConfigEntry = sourceConfigItem,
