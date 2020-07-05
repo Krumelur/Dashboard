@@ -1,0 +1,9 @@
+@baseUrl = http://localhost:7071/api
+
+# Get latest history items for all sources
+GET {{baseUrl}}/latestsourcedatahistory
+
+###
+
+# Harvest all configured sources
+GET {{baseUrl}}/harvestconfiguredsources

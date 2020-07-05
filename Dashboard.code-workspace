@@ -1,10 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "src\\Server\\Sources"
-		},
-		{
-			"path": "src\\Server\\Harvester"
+			"path": "src\\Server"
 		},
 		{
 			"path": "src\\Models"
@@ -25,7 +22,6 @@
             {
                 "name": "Attach to function apps",
                 "configurations": [
-                    "Attach to Sources Functions",
                     "Attach to Harvester Functions"
                 ]
             }

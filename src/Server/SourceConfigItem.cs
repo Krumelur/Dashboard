@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Dashboard.Server.Harvester
+namespace Dashboard.Server
 {
     public class SourceConfigItem
 	{

@@ -1,8 +1,6 @@
 # Dashboard
 
-Repository before breaking changes: https://github.com/Krumelur/Dashboard/tree/e055007854a09320428b1c572688bafaaf839713
-
-## Harvester
+## Server
 
 ### Required configuration settings
 
@@ -19,21 +17,19 @@ Regular:
 
 Secrets:
 {
-    "HarvesterFunctionsAuthKey": "...",
-    "SourcesFunctionsAuthKey": "...",
-    "CosmosDbConnectionString": "AccountEndpoint=https://..."
-}
-
-## Sources
-
-### Required configuration settings
-
-Regular:
-none
-
-Secrets:
-
-{
+    "ExtendedPermsFunctionsAuthKey": "...",
+    "StandardPermsFunctionsAuthKey": "...",
+    "CosmosDbConnectionString": "AccountEndpoint=https://...",
     "SolarEdgeApiKey": "8H...",
     "SolarEdgeLocationId": "4...",
- }
+}
+
+## Storage emulator
+
+To run locally, you'll need the Azurite Storage Emulator.
+https://docs.microsoft.com/azure/storage/common/storage-use-azurite
+
+Make sure to start the emulator (Command palette -> Azurite: Start) before debugging the functions' project.
+
+
+ 

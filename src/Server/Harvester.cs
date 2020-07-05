@@ -11,15 +11,14 @@ using System.IO;
 using Newtonsoft.Json;
 using Flurl.Http;
 using Dashboard.Models;
-using System.Net.Http;
 
-namespace Dashboard.Server.Harvester
+namespace Dashboard.Server
 {
 	/// <summary>
 	/// Collection of functions that help reading the configured sources and, poll them and
 	/// write the results back into a history table.
 	/// </summary>
-    public class Harvester
+	public class Harvester
     {
 		public Harvester(IConfiguration config)
 		{
@@ -49,8 +48,8 @@ namespace Dashboard.Server.Harvester
 				return;
 			}
 
-			var harvesterFuncAuthKey = _config["HarvesterFunctionsAuthKey"];
-			if(String.IsNullOrWhiteSpace(harvesterFuncAuthKey))
+			var extendedPermsFuncAuthKey = _config["ExtendedPermsFunctionsAuthKey"];
+			if(String.IsNullOrWhiteSpace(extendedPermsFuncAuthKey))
 			{
 				log.LogError("Failed to retrieve harvester authorization key. Is it added to the configuration?");
 				return;
@@ -69,7 +68,7 @@ namespace Dashboard.Server.Harvester
 				// I presume the functions runtime isn't done initializing and will throw an error stating
 				// that the connection was actively refused.
 				 processedSourceConfigItems = await harvesterUrl
-					.WithHeader("x-functions-key", harvesterFuncAuthKey)
+					.WithHeader("x-functions-key", extendedPermsFuncAuthKey)
 					.WithTimeout(60)
 					.GetJsonAsync<List<SourceConfigItem>>();
 
@@ -108,6 +107,14 @@ namespace Dashboard.Server.Harvester
         {
 			log.LogInformation("Harvesting all sources");
 
+			// This function should only run if the ExtendedPermsFunctionsAuthKey is passed in
+			// via the x-functions-key header.
+			var authKey = _config["ExtendedPermsFunctionsAuthKey"];
+			if(!Helpers.CheckFunctionAuthKey(authKey, req))
+			{
+				return new BadRequestObjectResult("Failed to verify ExtendedPermsFunctionsAuthKey.");
+			}
+
 			var configItemsToProcess = new List<SourceConfigItem>();
 			
 			bool ignoreLastUpdate = false;
@@ -120,12 +127,6 @@ namespace Dashboard.Server.Harvester
 			if(req.Query.ContainsKey("awaitCompletion"))
 			{
 				Boolean.TryParse(req.Query["awaitCompletion"], out awaitCompletion);
-			}
-
-			var harvesterFuncAuthKey = _config["HarvesterFunctionsAuthKey"];
-			if(String.IsNullOrWhiteSpace(harvesterFuncAuthKey))
-			{
-				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
 			}
 
 			foreach (var sourceConfigItem in sourceConfigItems)
@@ -155,7 +156,7 @@ namespace Dashboard.Server.Harvester
 				{
 					// Fire & forget. Read every source but don't wait.
 					var fireAndForgetTask = postUrl
-						.WithHeader("x-functions-key", harvesterFuncAuthKey)
+						.WithHeader("x-functions-key", authKey)
 						.WithTimeout(60)
 						.PostJsonAsync(sourceConfigItem)
 						.ReceiveJson<SourceConfigItem>();
@@ -197,6 +198,14 @@ namespace Dashboard.Server.Harvester
         {
 			log.LogInformation($"Harvesting specific source");
 
+			// This function should only run if the ExtendedPermsFunctionsAuthKey is passed in
+			// via the x-functions-key header.
+			var authKey = _config["ExtendedPermsFunctionsAuthKey"];
+			if(!Helpers.CheckFunctionAuthKey(authKey, req))
+			{
+				return new BadRequestObjectResult("Failed to verify ExtendedPermsFunctionsAuthKey.");
+			}
+
 			// Get source config item from the request's body.
 			SourceConfigItem sourceConfigItem = null;
 			var content = await new StreamReader(req.Body).ReadToEndAsync();
@@ -211,19 +220,12 @@ namespace Dashboard.Server.Harvester
 				return new BadRequestObjectResult($"Failed to deserialize source config data: {ex}");
 			}
 
-			// TODO: Not all sources will be functions...the source configuration should contain source specific authorization codes.
-			var sourcesFuncAuthKey = _config["SourcesFunctionsAuthKey"];
-			if(String.IsNullOrWhiteSpace(sourcesFuncAuthKey))
-			{
-				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
-			}
-
 			// Read the source.
 			SourceData sourceData = null;
 			try
 			{
 				sourceData = await sourceConfigItem.Url
-					.WithHeader("x-functions-key", sourcesFuncAuthKey)
+					.WithHeader("x-functions-key", authKey)
 					.WithTimeout(180)
 					.GetJsonAsync<SourceData>();
 

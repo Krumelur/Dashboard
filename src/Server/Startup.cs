@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-[assembly: FunctionsStartup(typeof(Dashboard.Server.Sources.Startup))]
+[assembly: FunctionsStartup(typeof(Dashboard.Server.Startup))]
 
-namespace Dashboard.Server.Sources
+namespace Dashboard.Server
 {
 	public class Startup : FunctionsStartup
 	{

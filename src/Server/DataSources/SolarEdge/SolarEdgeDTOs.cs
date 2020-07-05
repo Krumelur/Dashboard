@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Dashboard.Server.Sources.SolarEdge
+namespace Dashboard.Server.DataSources.SolarEdge
 {
 	public class CurrentPowerFlowRoot
 	{

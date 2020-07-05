@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -7,17 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using System.IO;
-using Newtonsoft.Json;
-using Flurl.Http;
-using Dashboard.Models;
-using System.Net.Http;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using System.Linq;
 using System.Collections;
 
-namespace Dashboard.Server.Harvester
+namespace Dashboard.Server
 {
 	public class Api
 	{
@@ -42,10 +36,10 @@ namespace Dashboard.Server.Harvester
 
 			var configItemsToProcess = new List<SourceConfigItem>();
 
-			var harvesterFuncAuthKey = _config["HarvesterFunctionsAuthKey"];
-			if (String.IsNullOrWhiteSpace(harvesterFuncAuthKey))
+			var authKey = _config["StandardPermsFunctionsAuthKey"];
+			if(!Helpers.CheckFunctionAuthKey(authKey, req))
 			{
-				return new BadRequestObjectResult("Failed to retrieve authorization key. Is it added to the configuration?");
+				return new BadRequestObjectResult("Failed to verify StandardPermsFunctionsAuthKey.");
 			}
 
 			foreach (var sourceConfigItem in sourceConfigItems)

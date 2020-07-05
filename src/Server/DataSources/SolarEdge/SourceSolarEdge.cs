@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Dashboard.Models;
 
-namespace Dashboard.Server.Sources.SolarEdge
+namespace Dashboard.Server.DataSources.SolarEdge
 {
     public class SourceSolarEdge
     {
@@ -24,6 +24,13 @@ namespace Dashboard.Server.Sources.SolarEdge
             ILogger log)
         {
 			log.LogInformation("Requesting solar data");
+
+			// This function should only run if the ExtendedPermsFunctionsAuthKey is passed in
+			// via the x-functions-key header.
+			if(!Helpers.CheckFunctionAuthKey(_config["ExtendedPermsFunctionsAuthKey"], req))
+			{
+				return new BadRequestObjectResult("Failed to verify ExtendedPermsFunctionsAuthKey.");
+			}
 
 			var solarEdgeApiKey = _config["SolarEdgeApiKey"];
 			var solarEdgeLocationId = Int32.Parse(_config["SolarEdgeLocationId"]);
