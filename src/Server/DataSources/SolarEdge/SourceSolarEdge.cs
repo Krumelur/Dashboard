@@ -18,7 +18,7 @@ namespace Dashboard.Server.DataSources.SolarEdge
 		}
 		readonly IConfiguration _config;
 
-        [FunctionName("solaredge")]
+        [FunctionName("GetSolarEdgeData")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "solar")] HttpRequest req,
             ILogger log)
