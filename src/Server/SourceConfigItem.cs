@@ -23,7 +23,7 @@ namespace Dashboard.Server
 		
 		public DateTimeOffset LastUpdateUtc { get; set; }
 		
-		public int IntervalMinutes { get; set; }
+		public string CronExecutionTime { get; set; }
 
 		/// <summary>
 		/// ID of the newest history item for this source.
@@ -33,6 +33,6 @@ namespace Dashboard.Server
 		
 		public bool IsEnabled { get; set; }
 
-		public override string ToString() => $"[{nameof(SourceConfigItem)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', LatestHistoryItemId = '{LatestHistoryItemId}', IntervalMinutes = '{IntervalMinutes}', IsEnabled = '{IsEnabled}'";
+		public override string ToString() => $"[{nameof(SourceConfigItem)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', LatestHistoryItemId = '{LatestHistoryItemId}', CronExecutionTime = '{CronExecutionTime}', IsEnabled = '{IsEnabled}'";
 	}
 }

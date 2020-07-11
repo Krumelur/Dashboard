@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AzureFunctions.Extensions.DependencyInjection" Version="1.1.2" />
+    <PackageReference Include="Cronos" Version="0.7.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.4" />

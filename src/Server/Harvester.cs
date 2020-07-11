@@ -11,6 +11,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Flurl.Http;
 using Dashboard.Models;
+using Cronos;
 
 namespace Dashboard.Server
 {
@@ -132,14 +133,37 @@ namespace Dashboard.Server
 			foreach (var sourceConfigItem in sourceConfigItems)
 			{
 				// Process all sources that are enabled and are overdue.
-				if(sourceConfigItem.IsEnabled && (ignoreLastUpdate || sourceConfigItem.LastUpdateUtc == DateTimeOffset.MinValue || sourceConfigItem.LastUpdateUtc.AddMinutes(sourceConfigItem.IntervalMinutes) < DateTimeOffset.UtcNow))
+				if(string.IsNullOrWhiteSpace(sourceConfigItem.CronExecutionTime))
+				{
+					log.LogWarning($"Skipping config entry. CRON execution time is null or whitespace: {sourceConfigItem}");
+					continue;
+				}
+
+				var cronExpression = CronExpression.Parse(sourceConfigItem.CronExecutionTime);
+				DateTime? nextExecutionUtc = cronExpression.GetNextOccurrence(DateTime.UtcNow);
+			
+				if(nextExecutionUtc == null)
+				{
+					log.LogWarning($"Skipping config entry. It doesn't have a valid CRON execution time: {sourceConfigItem}");
+					continue;
+				}
+
+				if(!sourceConfigItem.IsEnabled)
+				{
+					log.LogWarning($"Skipping config entry. It's not enabled: {sourceConfigItem}");
+					continue;
+				}
+				
+				log.LogInformation($"Current UTC time is '{DateTimeOffset.UtcNow}'. Next execution time UTC is '{nextExecutionUtc}' for config entry: {sourceConfigItem}");
+					
+				if((ignoreLastUpdate || sourceConfigItem.LastUpdateUtc == DateTimeOffset.MinValue || nextExecutionUtc < DateTimeOffset.UtcNow))
 				{
 					log.LogInformation($"Config entry to be processed: {sourceConfigItem}");
 					configItemsToProcess.Add(sourceConfigItem);
 				}
 				else
 				{
-					log.LogInformation($"Config entry skipped (not enabled or not due): {sourceConfigItem}");
+					log.LogInformation($"Config entry skipped. It's not due: {sourceConfigItem}");
 				}
 			}
 
