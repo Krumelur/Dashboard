@@ -3,18 +3,18 @@ using Newtonsoft.Json;
 
 namespace Dashboard.Server
 {
-    public class SourceDataHistoryItem
+    public class SourceDataItem
 	{
 		/// <summary>
 		/// ID of the history item.
 		/// CosmosDB expects the property to be lowercase.
-		/// This property is used as the partition key in CosmosDB.
 		/// </summary>
 		[JsonProperty("id")]
 		public string Id { get; set; }
 
 		/// <summary>
 		/// Identifies this source. Identifiers are for example "WOD", "Solar", "EV".
+		/// This property is used as the partition key in CosmosDB.
 		/// </summary>
 		public string SourceId { get; set; }
 

@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:7071/api
 
-# Get latest history items for all sources
-GET {{baseUrl}}/latestsourcedatahistory
+# Get history items of a source
+GET {{baseUrl}}/sourcedata/solar
 
 ###
 

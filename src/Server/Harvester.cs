@@ -205,7 +205,7 @@ namespace Dashboard.Server
 		/// <summary>
 		/// HTTP triggered function (POST).
 		/// Reads a source, awaits the call and stores the result data into a Cosmos DB instance 
-		/// configured by the connection string 'CosmosDbConnectionString', using the collection 'sourcedatahistory'
+		/// configured by the connection string 'CosmosDbConnectionString', using the collection 'sourcedata'
 		/// in the database named 'dashboard'. Upon succesful processing, it updates the collection 'sourceconfig'
 		/// by setting the source configurations 'LastUpdateUtc' property to the processing time.		
 		/// 
@@ -217,7 +217,7 @@ namespace Dashboard.Server
         public async Task<IActionResult> HarvestAndPersistSource(
 			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "harvestsource")] HttpRequest req,
 			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceConfigItem> updatedSourceConfigItems,
-           	[CosmosDB("dashboard", "sourcedatahistory", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceDataHistoryItem> sourceDataHistoryItems,
+           	[CosmosDB("dashboard", "sourcedata", ConnectionStringSetting = "CosmosDbConnectionString")] IAsyncCollector<SourceDataItem> sourceDataItems,
            	ILogger log)
         {
 			log.LogInformation($"Harvesting specific source");
@@ -263,7 +263,7 @@ namespace Dashboard.Server
 			}
 
 			// Write source result to history table.
-			var sourceDataHistoryItem = new SourceDataHistoryItem
+			var sourceDataItem = new SourceDataItem
 			{
 				Id = Guid.NewGuid().ToString(),
 				SourceId = sourceData.Id,
@@ -271,15 +271,15 @@ namespace Dashboard.Server
 				TimeStampUtc = sourceData.TimeStampUtc
 			};
 			
-			await sourceDataHistoryItems.AddAsync(sourceDataHistoryItem);
+			await sourceDataItems.AddAsync(sourceDataItem);
 
 			// Store the ID of the latest history item in the source config for easy access.
-			sourceConfigItem.LatestHistoryItemId = sourceDataHistoryItem.Id;
+			sourceConfigItem.LatestHistoryItemId = sourceDataItem.Id;
 			await updatedSourceConfigItems.AddAsync(sourceConfigItem);
 
 			return new OkObjectResult(new  {
 				updatedSourceConfigEntry = sourceConfigItem,
-				historyEntry = sourceDataHistoryItem
+				historyEntry = sourceDataItem
 			});
         }
     }

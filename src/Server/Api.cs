@@ -10,6 +10,8 @@ using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using System.Linq;
 using System.Collections;
+using System;
+using Cronos;
 
 namespace Dashboard.Server
 {
@@ -23,17 +25,21 @@ namespace Dashboard.Server
 
 		/// <summary>
 		/// HTTP triggered function (GET).
+		/// 
+		/// Query parameters:
+		/// numdatapoints		Number of data points to retrieve. Defaults to 1 (the latest).
 		/// </summary>
 		/// <returns></returns>
-		[FunctionName("GetLatestSourceDataHistory")]
-		public async Task<IActionResult> GetLatestSourceDataHistory(
-			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "latestsourcedatahistory")] HttpRequest req,
+		[FunctionName("GetSourceData")]
+		public async Task<IActionResult> GetSourceData(
+			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "sourcedata/{sourceId}")] HttpRequest req,
 			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfigItem> sourceConfigItems,
-			[CosmosDB("dashboard", "sourcedatahistory", ConnectionStringSetting = "CosmosDbConnectionString")] DocumentClient docClient,
+			[CosmosDB("dashboard", "sourcedata", ConnectionStringSetting = "CosmosDbConnectionString")] DocumentClient docClient,
+			string sourceId,
 			ILogger log)
 		{
-			log.LogInformation("Getting latest source data history");
-
+			log.LogInformation($"Getting source data for '{sourceId}'");
+			
 			var configItemsToProcess = new List<SourceConfigItem>();
 
 			var authKey = _config["StandardPermsFunctionsAuthKey"];
@@ -42,40 +48,58 @@ namespace Dashboard.Server
 				return new BadRequestObjectResult("Failed to verify StandardPermsFunctionsAuthKey.");
 			}
 
-			foreach (var sourceConfigItem in sourceConfigItems)
+			if(int.TryParse(req.Query["numdatapoints"], out int numDataPoints))
 			{
-				// Process all sources that are enabled and are overdue.
-				if (sourceConfigItem.IsEnabled)
-				{
-					log.LogInformation($"Config entry to be processed: {sourceConfigItem}");
-					configItemsToProcess.Add(sourceConfigItem);
-				}
-				else
-				{
-					log.LogInformation($"Config entry skipped (not enabled): {sourceConfigItem}");
-				}
+				log.LogInformation($"Number of data points was specified: '{1}'");
+			}
+			else
+			{
+				numDataPoints = 1;
 			}
 
-			var latestHistoryItems = new ArrayList();
+			var sourceConfig = sourceConfigItems.FirstOrDefault(x => x.Id == sourceId);
+			if(sourceConfig == null)
+			{
+				log.LogWarning($"Unable to find source config item for ID '{sourceId}'");
+			}
+
+			var collectionUri = UriFactory.CreateDocumentCollectionUri("dashboard", "sourcedata");
+
+			// SELECT TOP 2 * FROM c WHERE c.SourceId='solar' ORDER BY c.TimeStampUtc DESC
+			var query = docClient.CreateDocumentQuery<SourceDataItem>(collectionUri)
+			.Where(x => x.SourceId == sourceId)
+			.OrderByDescending(x => x.TimeStampUtc)
+			.Take(1)
+			.AsDocumentQuery();
+
+			var dataHistoryItems = new List<SourceDataItem>();
+
+			while(query.HasMoreResults)
+			{
+				var documents = await query.ExecuteNextAsync<SourceDataItem>();
+				dataHistoryItems.AddRange(documents);
+			}
+
+			DateTime? nextSourceExecutionDueUtc = null;
+			if(sourceConfig != null)
+			{
+				var cronExpression = CronExpression.Parse(sourceConfig.CronExecutionTime);
+				nextSourceExecutionDueUtc = cronExpression.GetNextOccurrence(DateTime.UtcNow);
+			}
 			
-			// Iterate over all enabled sources and get the latest history entry.
-			var collectionUri = UriFactory.CreateDocumentCollectionUri("dashboard", "sourcedatahistory");
-
-			foreach (var sourceConfigItem in configItemsToProcess)
-			{
-				var query = docClient.CreateDocumentQuery<SourceDataHistoryItem>(collectionUri)
-				.Where(x => x.Id == sourceConfigItem.LatestHistoryItemId)
-				.AsDocumentQuery();
-
-				var latestSourceDataHistoryItem = (await query.ExecuteNextAsync()).FirstOrDefault();
-
-				latestHistoryItems.Add(new {
-					SourceName = sourceConfigItem.Name,
-					LatestHistoryItem = latestSourceDataHistoryItem
-				});
-			}
-
-			return new OkObjectResult(latestHistoryItems);
+			var result = new {
+				SourceConfig = new {
+					Id = sourceConfig != null ? sourceConfig.Id : null, 
+					Name = sourceConfig != null ? sourceConfig.Name : "(unknown)",
+					LastUpdateUtc = sourceConfig != null ? sourceConfig.LastUpdateUtc : DateTimeOffset.MinValue.UtcDateTime,
+					NextExecutionDueUtc = nextSourceExecutionDueUtc, 
+					CronExecutionTime = sourceConfig != null ? sourceConfig.CronExecutionTime : null,
+					IsEnabled = sourceConfig != null ? sourceConfig.IsEnabled : false,
+				},
+				HistoryData = dataHistoryItems
+			};
+			
+			return new OkObjectResult(result);
 		}
 	}
 }
