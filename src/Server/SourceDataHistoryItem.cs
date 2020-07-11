@@ -16,6 +16,7 @@ namespace Dashboard.Server
 		/// Identifies this source. Identifiers are for example "WOD", "Solar", "EV".
 		/// This property is used as the partition key in CosmosDB.
 		/// </summary>
+		[JsonProperty("sourceid")]
 		public string SourceId { get; set; }
 
 		/// <summary>

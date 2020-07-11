@@ -7,3 +7,24 @@ GET {{baseUrl}}/sourcedata/solar
 
 # Harvest all configured sources
 GET {{baseUrl}}/harvestconfiguredsources
+
+###
+
+GET {{baseUrl}}/harvestconfiguredsources?ignoreLastUpdate=true&awaitCompletion=true
+x-functions-key: $ecret_extended!
+
+
+###
+
+POST {{baseUrl}}/harvestsource
+x-functions-key: $ecret_extended!
+
+{
+    "id": "solar",
+    "name": "Solar",
+    "Url": "https://krumelurdashboardapi.azurewebsites.net/api/solar",
+    "LastUpdateUtc": "2020-07-11T11:10:00.713322+00:00",
+    "CronExecutionTime": "*/10 * * * *",
+    "LatestHistoryItemId": "3d202978-b617-4197-9a97-c2875f4f5bfb",
+    "IsEnabled": true,
+}
