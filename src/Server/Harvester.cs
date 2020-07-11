@@ -140,7 +140,7 @@ namespace Dashboard.Server
 				}
 
 				var cronExpression = CronExpression.Parse(sourceConfigItem.CronExecutionTime);
-				DateTime? nextExecutionUtc = cronExpression.GetNextOccurrence(DateTime.UtcNow);
+				DateTime? nextExecutionUtc = cronExpression.GetNextOccurrence(sourceConfigItem.LastUpdateUtc.UtcDateTime);
 			
 				if(nextExecutionUtc == null)
 				{
