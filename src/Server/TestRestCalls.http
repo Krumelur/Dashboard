@@ -1,23 +1,20 @@
-@baseUrl = http://localhost:7071/api
+#@baseUrl = http://localhost:7071/api
+@baseUrl = https://krumelurdashboardapi.azurewebsites.net/api/
 
 # Get history items of a source
-GET {{baseUrl}}/sourcedata/solar
+GET {{baseUrl}}/sourcedata/solar?numdatapoints=20
+x-functions-key: ...
 
 ###
 
 # Harvest all configured sources
-GET {{baseUrl}}/harvestconfiguredsources
-
-###
-
 GET {{baseUrl}}/harvestconfiguredsources?ignoreLastUpdate=true&awaitCompletion=true
-x-functions-key: $ecret_extended!
-
+x-functions-key: ...
 
 ###
 
 POST {{baseUrl}}/harvestsource
-x-functions-key: $ecret_extended!
+x-functions-key: ...
 
 {
     "id": "solar",

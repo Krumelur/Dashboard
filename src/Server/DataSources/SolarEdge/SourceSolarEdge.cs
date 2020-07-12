@@ -68,7 +68,7 @@ namespace Dashboard.Server.DataSources.SolarEdge
 				Id = "solar_performance",
 				Type = DataItemType.Decimal,
 				Label = "Performance (%)",
-				Value = solarData.Solar.CurrentPower / 9.8f
+				Value = Math.Round(solarData.Solar.CurrentPower / 9.8f * 100)
 			};
 
 			var sourceDto = new SourceData
