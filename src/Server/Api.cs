@@ -69,7 +69,7 @@ namespace Dashboard.Server
 			var query = docClient.CreateDocumentQuery<SourceDataItem>(collectionUri)
 			.Where(x => x.SourceId == sourceId)
 			.OrderByDescending(x => x.TimeStampUtc)
-			.Take(1)
+			.Take(numDataPoints)
 			.AsDocumentQuery();
 
 			var dataHistoryItems = new List<SourceDataItem>();
