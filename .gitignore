@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Azurite
+__blobstorage__
+__azurite_db_blob__*
+__azurite_db_table__*
+
 # User-specific files
 *.suo
 *.user
