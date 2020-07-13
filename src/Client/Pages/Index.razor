@@ -3,39 +3,19 @@
 <Container Fluid="true">
 	<Row>
 		<Column ColumnSize="ColumnSize.Is4">
-			<Card>
-				<CardBody>
-					<CardTitle Size="5">Card title</CardTitle>
-					<CardText>
-						Some quick example text to build on the card title and make up the bulk of the card's content.
-					</CardText>
-					<Button Color="Color.Primary">Button</Button>
-				</CardBody>
-			</Card>
+			<SolarSourceCard/>
 		</Column>
 
 		<Column ColumnSize="ColumnSize.Is4">
-			<Card>
-				<CardBody>
-					<CardTitle Size="5">Card title</CardTitle>
-					<CardText>
-						Some quick example text to build on the card title and make up the bulk of the card's content.
-					</CardText>
-					<Button Color="Color.Primary">Button</Button>
-				</CardBody>
-			</Card>
-		</Column>
-
-		<Column ColumnSize="ColumnSize.Is4">
-			<Card>
-				<CardBody>
-					<CardTitle Size="5">Card title</CardTitle>
-					<CardText>
-						Some quick example text to build on the card title and make up the bulk of the card's content.
-					</CardText>
-					<Button Color="Color.Primary">Button</Button>
-				</CardBody>
-			</Card>
+			<SolarSourceCard/>
 		</Column>
 	</Row>
 </Container>
+
+@code
+{
+	protected override async Task OnInitializedAsync()
+	{
+		int foo = 43;
+	}
+}

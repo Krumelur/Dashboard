@@ -1,0 +1,26 @@
+﻿@inject HttpClient Http
+<Card>
+	<CardBody>
+		<CardTitle Size="5">Card title</CardTitle>
+		<CardText>
+			Some quick example text to build on the card title and make up the bulk of the card's content.
+		</CardText>
+		<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
+	</CardBody>
+</Card>
+
+@code
+{
+	async Task HandleRefreshClick(MouseEventArgs args)
+	{
+		var url = "https://krumelurdashboardapi.azurewebsites.net/api/sourcedata/solar?numDataPoints=6";
+
+		var data = await Http.GetFromJsonAsync<string>(url);
+		Console.WriteLine(data);
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		
+	}
+}
