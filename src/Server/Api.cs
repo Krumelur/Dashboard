@@ -1,3 +1,4 @@
+using Dashboard.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -33,14 +34,14 @@ namespace Dashboard.Server
 		[FunctionName("GetSourceData")]
 		public async Task<IActionResult> GetSourceData(
 			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "sourcedata/{sourceId}")] HttpRequest req,
-			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfigItem> sourceConfigItems,
+			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfig> SourceConfigs,
 			[CosmosDB("dashboard", "sourcedata", ConnectionStringSetting = "CosmosDbConnectionString")] DocumentClient docClient,
 			string sourceId,
 			ILogger log)
 		{
 			log.LogInformation($"Getting source data for '{sourceId}'");
 			
-			var configItemsToProcess = new List<SourceConfigItem>();
+			var configItemsToProcess = new List<SourceConfig>();
 
 			var authKey = _config["StandardPermsFunctionsAuthKey"];
 			if(!Helpers.CheckFunctionAuthKey(authKey, req))
@@ -57,7 +58,7 @@ namespace Dashboard.Server
 				numDataPoints = 1;
 			}
 
-			var sourceConfig = sourceConfigItems.FirstOrDefault(x => x.Id == sourceId);
+			var sourceConfig = SourceConfigs.FirstOrDefault(x => x.Id == sourceId);
 			if(sourceConfig == null)
 			{
 				log.LogWarning($"Unable to find source config item for ID '{sourceId}'");
@@ -66,37 +67,23 @@ namespace Dashboard.Server
 			var collectionUri = UriFactory.CreateDocumentCollectionUri("dashboard", "sourcedata");
 
 			// SELECT TOP 2 * FROM c WHERE c.SourceId='solar' ORDER BY c.TimeStampUtc DESC
-			var query = docClient.CreateDocumentQuery<SourceDataItem>(collectionUri)
+			var query = docClient.CreateDocumentQuery<SourceData>(collectionUri)
 			.Where(x => x.SourceId == sourceId)
 			.OrderByDescending(x => x.TimeStampUtc)
 			.Take(numDataPoints)
 			.AsDocumentQuery();
 
-			var dataHistoryItems = new List<SourceDataItem>();
+			var dataHistoryItems = new List<SourceData>();
 
 			while(query.HasMoreResults)
 			{
-				var documents = await query.ExecuteNextAsync<SourceDataItem>();
+				var documents = await query.ExecuteNextAsync<SourceData>();
 				dataHistoryItems.AddRange(documents);
 			}
 
-			DateTime? nextSourceExecutionDueUtc = null;
-			if(sourceConfig != null)
-			{
-				var cronExpression = CronExpression.Parse(sourceConfig.CronExecutionTime);
-				nextSourceExecutionDueUtc = cronExpression.GetNextOccurrence(DateTime.UtcNow);
-			}
-			
 			var result = new {
-				SourceConfig = new {
-					Id = sourceConfig != null ? sourceConfig.Id : null, 
-					Name = sourceConfig != null ? sourceConfig.Name : "(unknown)",
-					LastUpdateUtc = sourceConfig != null ? sourceConfig.LastUpdateUtc : DateTimeOffset.MinValue.UtcDateTime,
-					NextExecutionDueUtc = nextSourceExecutionDueUtc, 
-					CronExecutionTime = sourceConfig != null ? sourceConfig.CronExecutionTime : null,
-					IsEnabled = sourceConfig != null ? sourceConfig.IsEnabled : false,
-				},
-				HistoryData = dataHistoryItems
+				sourceConfig = sourceConfig,
+				historyData = dataHistoryItems
 			};
 			
 			return new OkObjectResult(result);

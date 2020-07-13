@@ -1,9 +1,9 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Dashboard.Server
+namespace Dashboard.Models
 {
-    public class SourceConfigItem
+    public class SourceConfig
 	{
 		/// <summary>
 		/// ID of the config item.
@@ -11,7 +11,7 @@ namespace Dashboard.Server
 		/// </summary>
 		[JsonProperty("id")]
 		public string Id { get; set; }
-		
+			
 		/// <summary>
 		/// Name of the configuration item, for example "Solar".
 		/// This property is used as the partition key in CosmosDB and must be lowercase.
@@ -22,9 +22,11 @@ namespace Dashboard.Server
 		public string Url { get; set; }
 		
 		public DateTimeOffset LastUpdateUtc { get; set; }
-		
+
 		public string CronExecutionTime { get; set; }
 
+		public DateTimeOffset? NextExecutionDueUtc { get; set; }
+		
 		/// <summary>
 		/// ID of the newest history item for this source.
 		/// </summary>
@@ -33,6 +35,6 @@ namespace Dashboard.Server
 		
 		public bool IsEnabled { get; set; }
 
-		public override string ToString() => $"[{nameof(SourceConfigItem)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', LatestHistoryItemId = '{LatestHistoryItemId}', CronExecutionTime = '{CronExecutionTime}', IsEnabled = '{IsEnabled}'";
+		public override string ToString() => $"[{nameof(SourceConfig)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', LatestHistoryItemId = '{LatestHistoryItemId}', CronExecutionTime = '{CronExecutionTime}', IsEnabled = '{IsEnabled}'";
 	}
 }

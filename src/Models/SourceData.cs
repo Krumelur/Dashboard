@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Dashboard.Models
 {
@@ -9,9 +9,18 @@ namespace Dashboard.Models
     public class SourceData
 	{
 		/// <summary>
-		/// Identifies this source. Identifiers are for example "WOD", "Solar", "EV".
+		/// ID of the history item.
+		/// CosmosDB expects the property to be lowercase.
 		/// </summary>
+		[JsonProperty("id")]
 		public string Id { get; set; }
+
+		/// <summary>
+		/// Identifies this source. Identifiers are for example "WOD", "Solar", "EV".
+		/// This property is used as the partition key in CosmosDB.
+		/// </summary>
+		[JsonProperty("sourceid")]
+		public string SourceId { get; set; }
 			
 		/// <summary>
 		/// Defines when this source data was created.
@@ -19,15 +28,10 @@ namespace Dashboard.Models
 		public DateTimeOffset TimeStampUtc { get; set; }
 
 		/// <summary>
-		/// The title of the source to be displayed on the dashboard.
-		/// </summary>
-		public string Title { get; set; }
-
-		/// <summary>
 		/// The individual data items the source provides. The "Solar" source may for example return items for daily production, current power and peak power.
 		/// </summary>
 		public DataItem[] DataItems { get; set; }
 
-		public override string ToString() => $"[{nameof(SourceData)}] Id = '{Id}', Title = '{Title}', TimeStamp = '{TimeStampUtc}'";
+		public override string ToString() => $"[{nameof(SourceData)}] Id = '{Id}', TimeStamp = '{TimeStampUtc}'";
 	}
 }

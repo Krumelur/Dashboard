@@ -1,4 +1,5 @@
-﻿@inject HttpClient Http
+﻿@inherits DashboardClient.Components.Shared.SolarSourceCard
+
 <Card>
 	<CardBody>
 		<CardTitle Size="5">Card title</CardTitle>
@@ -8,19 +9,3 @@
 		<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
 	</CardBody>
 </Card>
-
-@code
-{
-	async Task HandleRefreshClick(MouseEventArgs args)
-	{
-		var url = "https://krumelurdashboardapi.azurewebsites.net/api/sourcedata/solar?numDataPoints=6";
-
-		var data = await Http.GetFromJsonAsync<string>(url);
-		Console.WriteLine(data);
-	}
-
-	protected override async Task OnInitializedAsync()
-	{
-		
-	}
-}

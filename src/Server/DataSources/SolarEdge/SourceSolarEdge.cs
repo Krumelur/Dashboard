@@ -74,7 +74,6 @@ namespace Dashboard.Server.DataSources.SolarEdge
 			var sourceDto = new SourceData
 			{
 				Id = "solar",
-				Title = "Photovoltaik",
 				TimeStampUtc = DateTimeOffset.UtcNow,
 				DataItems = new DataItem[] {
 					gridDto,
