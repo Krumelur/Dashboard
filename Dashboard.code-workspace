@@ -1,16 +1,16 @@
 {
 	"folders": [
 		{
-			"path": "src\\Server"
+			"path": "src/Server"
 		},
 		{
-			"path": "src\\Models"
+			"path": "src/Models"
 		},
 		{
 			"path": "."
 		},
 		{
-			"path": "src\\Client"
+			"path": "src/Client"
 		}
 	],
 	"settings": {
