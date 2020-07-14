@@ -1,0 +1,35 @@
+name: Deploy Client to Azure
+
+on:
+  [push]
+
+env:
+  CLIENT_APP_PROJECT_PATH: 'src/Client/Client.csproj' 
+  CLIENT_APP_CONFIGURATION: 'Release'
+  CLIENT_APP_DIST_FOLDER: 'src/Client/bin/Release/netstandard2.1/publish/wwwroot'
+  DOTNET_VERSION: '3.1.301'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout code'
+      uses: actions/checkout@master
+      
+    - name: 'Setup .NET Environment'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: 'Build client project'
+      shell: bash
+      run: dotnet publish ${{ env.CLIENT_APP_PROJECT_PATH }} --configuration ${{ CLIENT_APP_CONFIGURATION }}
+
+    - name: 'Deploy to blob storage'
+      uses: krumelur/Azure-Storage-Action@master
+      with:
+        enabled-static-website: 'true'
+        index-document: 'index.html'
+        error-document: 'index.html'
+        folder: './${{ env.CLIENT_APP_DIST_FOLDER }}'
+        connection-string: ${{ secrets.DASHBOARD_BLOB_STORAGE_CONNECTION_STRING }}
