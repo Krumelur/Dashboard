@@ -20,21 +20,18 @@ namespace Client
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 			builder.Services
-			  .AddBlazorise(options =>
-			 {
+			.AddBlazorise(options => {
 				 options.ChangeTextOnKeyPress = true;
-			 })
-			  .AddBootstrapProviders()
-			  .AddFontAwesomeIcons();
-
-			builder.Services.AddSingleton(new HttpClient
-			{
+				})
+			.AddBootstrapProviders()
+			.AddFontAwesomeIcons()
+			.AddSingleton(new HttpClient {
 				BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
-			});
-			builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+			})
+			.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 			builder.RootComponents.Add<App>("app");
-			
+
 			var host = builder.Build();
 
 			host.Services
