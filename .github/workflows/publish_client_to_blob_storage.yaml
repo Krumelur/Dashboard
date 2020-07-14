@@ -23,7 +23,7 @@ jobs:
 
     - name: 'Build client project'
       shell: bash
-      run: dotnet publish ${{ env.CLIENT_APP_PROJECT_PATH }} --configuration ${{ CLIENT_APP_CONFIGURATION }}
+      run: dotnet publish ${{ env.CLIENT_APP_PROJECT_PATH }} --configuration ${{ env.CLIENT_APP_CONFIGURATION }}
 
     - name: 'Deploy to blob storage'
       uses: krumelur/Azure-Storage-Action@master
