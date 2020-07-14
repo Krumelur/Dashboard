@@ -31,5 +31,5 @@ jobs:
         enabled-static-website: 'true'
         index-document: 'index.html'
         error-document: 'index.html'
-        folder: './${{ env.CLIENT_APP_DIST_FOLDER }}'
+        folder: '${{ env.CLIENT_APP_DIST_FOLDER }}'
         connection-string: ${{ secrets.DASHBOARD_BLOB_STORAGE_CONNECTION_STRING }}
