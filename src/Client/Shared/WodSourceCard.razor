@@ -1,0 +1,9 @@
+﻿<Card>
+	<CardBody>
+		<CardTitle Size="5">WOD</CardTitle>
+		<CardText>
+			@((MarkupString)WodHtml)
+		</CardText>
+		<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
+	</CardBody>
+</Card>
