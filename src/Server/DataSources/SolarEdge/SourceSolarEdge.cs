@@ -44,7 +44,7 @@ namespace Dashboard.Server.DataSources.SolarEdge
 				Id = "grid_power",
 				Type = DataItemType.Decimal,
 				Label = "Netz (kW)",
-				Value = solarData.Grid.CurrentPower.ToString()
+				Value = solarData.Grid.CurrentPower
 			};
 
 			var houseDto = new DataItem
@@ -52,7 +52,7 @@ namespace Dashboard.Server.DataSources.SolarEdge
 				Id = "house_power",
 				Type = DataItemType.Decimal,
 				Label = "Haus (kW)",
-				Value = solarData.House.CurrentPower.ToString()
+				Value = solarData.House.CurrentPower
 			};
 
 			var solarDto = new DataItem
@@ -60,7 +60,7 @@ namespace Dashboard.Server.DataSources.SolarEdge
 				Id = "solar_power",
 				Type = DataItemType.Decimal,
 				Label = "PV (kW)",
-				Value = solarData.Solar.CurrentPower.ToString()
+				Value = solarData.Solar.CurrentPower
 			};
 
 			var solarPerformanceDto = new DataItem

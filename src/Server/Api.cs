@@ -81,9 +81,9 @@ namespace Dashboard.Server
 				dataHistoryItems.AddRange(documents);
 			}
 
-			var result = new {
-				sourceConfig = sourceConfig,
-				historyData = dataHistoryItems
+			var result = new SourceHistory {
+				SourceConfig = sourceConfig,
+				HistoryData = dataHistoryItems.ToArray()
 			};
 			
 			return new OkObjectResult(result);

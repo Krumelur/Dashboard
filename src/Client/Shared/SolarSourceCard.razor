@@ -1,11 +1,7 @@
-﻿@inherits DashboardClient.Components.Shared.SolarSourceCard
-
-<Card>
+﻿<Card>
 	<CardBody>
-		<CardTitle Size="5">Card title</CardTitle>
-		<CardText>
-			Some quick example text to build on the card title and make up the bulk of the card's content.
-		</CardText>
+		<CardTitle Size="5">Photovoltaik</CardTitle>
+		<LineChart @ref="lineChart" TItem="double" />
 		<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
 	</CardBody>
 </Card>

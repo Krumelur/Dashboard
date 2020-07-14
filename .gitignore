@@ -335,3 +335,5 @@ ASALocalRun/
 .mfractor/
 **/.DS_Store
 __azurite_db_blob__.json
+**/local.settings.json
+**/local.*.settings.json
