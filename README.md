@@ -1,5 +1,7 @@
 # Dashboard
 
+Before breaking changes: https://github.com/Krumelur/Dashboard/tree/e055007854a09320428b1c572688bafaaf839713
+
 ## Server
 
 ### Required configuration settings
@@ -17,6 +19,7 @@ Regular:
 
 Secrets:
 {
+    "PhantomJsApiKey" : "...",
     "ExtendedPermsFunctionsAuthKey": "...",
     "StandardPermsFunctionsAuthKey": "...",
     "CosmosDbConnectionString": "AccountEndpoint=https://...",
