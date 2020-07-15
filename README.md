@@ -1,5 +1,9 @@
 # Dashboard
 
+![Deploy Client to Azure](https://github.com/Krumelur/Dashboard/workflows/Deploy%20Client%20to%20Azure/badge.svg?branch=master)
+
+![Deploy Server Backend Functions to Azure](https://github.com/Krumelur/Dashboard/workflows/Deploy%20Server%20Backend%20Functions%20to%20Azure/badge.svg?branch=master)
+
 Before breaking changes: https://github.com/Krumelur/Dashboard/tree/e055007854a09320428b1c572688bafaaf839713
 
 ## Server

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -9,6 +7,12 @@ namespace Dashboard.Server.DataSources.WOD
 {
 	public class WodHelper
 	{
+		/// <summary>
+		/// Gets the WOD information from Crossfit Rosenheim's website.
+		/// Uses PhantomJs to scrape content because the WOD information is dynamically created using Javascript.
+		/// </summary>
+		/// <param name="phantomJsApiKey"></param>
+		/// <returns></returns>
 		public static async Task<string> GetWodContentPhantomJS(string phantomJsApiKey)
 		{
 			string responseString = String.Empty;
@@ -36,6 +40,9 @@ namespace Dashboard.Server.DataSources.WOD
 			return string.Empty;
 		}
 
+
+/*
+// Old version of code which gets the WOD directly from Beyond The Whiteboard and then strips out HTML.
 		static string StripHtml(string source)
 		{
 			string result;
@@ -263,4 +270,5 @@ namespace Dashboard.Server.DataSources.WOD
 			return textWods;
 		}
 	}
+	*/
 }
