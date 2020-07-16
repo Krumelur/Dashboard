@@ -268,7 +268,6 @@ namespace Dashboard.Server.DataSources.WOD
 			}
 
 			return textWods;
-		}
+		}*/
 	}
-	*/
 }
