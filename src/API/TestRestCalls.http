@@ -1,0 +1,6 @@
+#@baseUrl = http://localhost:7071/api
+@baseUrl = https://krumelurdashboardapi.azurewebsites.net/api/
+
+# Get history items of a source
+GET {{baseUrl}}/sourcedata/solar?numdatapoints=20
+x-functions-key: ...

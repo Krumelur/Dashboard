@@ -1,9 +1,0 @@
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "HarvesterUrl": "http://127.0.0.1:7071/api/harvestconfiguredsources",
-    "HarvesterSchedule": "0 */5 * * * *"
-  }
-}

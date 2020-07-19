@@ -4,7 +4,10 @@
 			"path": "src/Client"
 		},
 		{
-			"path": "src/Server"
+			"path": "src/Harvester"
+		},
+		{
+			"path": "src/API"
 		},
 		{
 			"path": "src/Models"

@@ -1,7 +1,9 @@
-name: Deploy Client to Azure
+name: Deploy Blazor Client to Azure
 
 on:
-  [push]
+  push:
+    branches:
+      - master
 
 env:
   CLIENT_APP_PROJECT_PATH: 'src/Client/Client.csproj' 
@@ -13,19 +15,19 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: 'Checkout code'
+    - name: 'Checking out code'
       uses: actions/checkout@master
       
-    - name: 'Setup .NET Environment'
+    - name: 'Settin up .NET ${{ env.DOTNET_VERSION }} environment'
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: 'Build client project'
+    - name: 'Building client project from ${{ env.CLIENT_APP_PROJECT_PATH }}'
       shell: bash
       run: dotnet publish ${{ env.CLIENT_APP_PROJECT_PATH }} --configuration ${{ env.CLIENT_APP_CONFIGURATION }}
 
-    - name: 'Deploy to blob storage'
+    - name: 'Deploying to blob storage'
       uses: krumelur/Azure-Storage-Action@master
       with:
         enabled-static-website: 'true'

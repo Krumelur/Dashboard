@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 
-namespace Dashboard.Server
+namespace Dashboard.API
 {
 	public static class Helpers
 	{

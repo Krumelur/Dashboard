@@ -14,7 +14,7 @@ using System.Collections;
 using System;
 using Cronos;
 
-namespace Dashboard.Server
+namespace Dashboard.API
 {
 	public class Api
 	{
