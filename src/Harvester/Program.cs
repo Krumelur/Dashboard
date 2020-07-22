@@ -52,14 +52,17 @@ namespace Harvester
 			HarvesterSettings = new HarvesterSettings();
 			Configuration.Bind("HarvesterSettings", HarvesterSettings);
 
-			// Only add secrets in development - otherwise use key vault.
-			if (isDevelopment)
+			// Only add secrets in development or when forced - otherwise use key vault.
+			if (commandLineOptions.ConfigSettingsSource?.ToLowerInvariant() != "keyvault" && (isDevelopment || commandLineOptions.ConfigSettingsSource?.ToLowerInvariant() == "local"))
 			{
+				Logger.LogInformation("Using local configuration settings");
 				builder.AddUserSecrets<Program>();
 				Configuration = builder.Build();
 			}
 			else
 			{
+				Logger.LogInformation("Using key vault's configuration settings");
+
 				if(string.IsNullOrWhiteSpace(HarvesterSettings.KeyVaultUri))
 				{
 					Logger.LogError("Cannot launch harvester - 'KeyVaultUri' is missing from appsettings.json.");

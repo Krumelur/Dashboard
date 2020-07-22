@@ -37,6 +37,3 @@ To run locally, you'll need the Azurite Storage Emulator.
 https://docs.microsoft.com/azure/storage/common/storage-use-azurite
 
 Make sure to start the emulator (Command palette -> Azurite: Start) before debugging the functions' project.
-
-
- 
