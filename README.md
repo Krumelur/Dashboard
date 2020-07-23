@@ -1,5 +1,9 @@
 # Dashboard
 
+![Deploy API project to Azure Functions](https://github.com/Krumelur/Dashboard/workflows/Deploy%20API%20project%20to%20Azure%20Functions/badge.svg)
+
+![Deploy Blazor Client to Azure](https://github.com/Krumelur/Dashboard/workflows/Deploy%20Blazor%20Client%20to%20Azure/badge.svg)
+
 ![Build Harvester for Linux (Raspberry)](https://github.com/Krumelur/Dashboard/workflows/Build%20Harvester%20for%20Linux%20(Raspberry)/badge.svg)
 
 Before breaking changes: https://github.com/Krumelur/Dashboard/tree/e055007854a09320428b1c572688bafaaf839713
