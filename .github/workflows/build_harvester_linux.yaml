@@ -31,7 +31,7 @@ jobs:
       uses: actions/download-artifact@v2
       id: download
       with:
-        path: ${{ HARVESTER_DIST_FOLDER }}
+        path: ${{ env.HARVESTER_DIST_FOLDER }}
 
     - name: 'Echo download path'
       run: echo ${{steps.download.outputs.download-path}}
