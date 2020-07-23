@@ -1,0 +1,8 @@
+{
+	"id":"source id goes here",
+	"name":"Name of the source",
+	"LastUpdateUtc": null,
+	"CronExecutionTime":"*/10 * * * *",
+	"NextExecutionDueUtc": null,
+	"IsEnabled":true
+}

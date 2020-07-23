@@ -1,14 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Dashboard.Server.DataSources.WOD
+namespace Dashboard.Harvester.DataSources.WOD
 {
 	public class WodHelper
 	{
+		/// <summary>
+		/// Gets the WOD information from Crossfit Rosenheim's website.
+		/// Uses PhantomJs to scrape content because the WOD information is dynamically created using Javascript.
+		/// </summary>
+		/// <param name="phantomJsApiKey"></param>
+		/// <returns></returns>
 		public static async Task<string> GetWodContentPhantomJS(string phantomJsApiKey)
 		{
 			string responseString = String.Empty;
@@ -21,10 +25,10 @@ namespace Dashboard.Server.DataSources.WOD
 				var pageRequestJson = new System.Net.Http.StringContent(@"{'url':'https://www.crossfit-rosenheim.com/wod/','renderType':'html','outputAsJson':false }");
 				var response = await client.PostAsync($"https://PhantomJScloud.com/api/browser/v2/{phantomJsApiKey}/", pageRequestJson);
 				responseString = await response.Content.ReadAsStringAsync();
-				Console.WriteLine("*** HTTP Request Finish ***");
-				Console.WriteLine(responseString);
+				//Console.WriteLine(responseString);
 			}
 
+			// Extract the part starting at the "WOD" H2 headline all the way before the script part starts.
 			// http://regexstorm.net/tester
 			var regEx = new Regex("(?<=<h2>wod</h2>)(.*)(?=<p><script\\ id=\"btwb_config\")", RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 			var result = regEx.Match(responseString);
@@ -36,6 +40,9 @@ namespace Dashboard.Server.DataSources.WOD
 			return string.Empty;
 		}
 
+
+/*
+// Old version of code which gets the WOD directly from Beyond The Whiteboard and then strips out HTML.
 		static string StripHtml(string source)
 		{
 			string result;
@@ -261,6 +268,6 @@ namespace Dashboard.Server.DataSources.WOD
 			}
 
 			return textWods;
-		}
+		}*/
 	}
 }

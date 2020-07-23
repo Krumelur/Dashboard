@@ -19,22 +19,14 @@ namespace Dashboard.Models
 		[JsonProperty("name")]
 		public string Name { get; set; }
 		
-		public string Url { get; set; }
-		
-		public DateTimeOffset LastUpdateUtc { get; set; }
+		public DateTimeOffset? LastUpdateUtc { get; set; }
 
 		public string CronExecutionTime { get; set; }
 
 		public DateTimeOffset? NextExecutionDueUtc { get; set; }
 		
-		/// <summary>
-		/// ID of the newest history item for this source.
-		/// </summary>
-		/// <value></value>
-		public string LatestHistoryItemId { get; set; }
-		
 		public bool IsEnabled { get; set; }
 
-		public override string ToString() => $"[{nameof(SourceConfig)}] Name = '{Name}', Url= '{Url}', LastUpdateUtc = '{LastUpdateUtc}', LatestHistoryItemId = '{LatestHistoryItemId}', CronExecutionTime = '{CronExecutionTime}', IsEnabled = '{IsEnabled}'";
+		public override string ToString() => $"[{nameof(SourceConfig)}] Name = '{Name}', LastUpdateUtc = '{LastUpdateUtc}', CronExecutionTime = '{CronExecutionTime}', IsEnabled = '{IsEnabled}'";
 	}
 }
