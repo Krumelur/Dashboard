@@ -1,0 +1,37 @@
+name: Build Harvester for Linux (Raspberry)
+
+on:
+  push:
+    branches:
+      - server-console-based
+
+env:
+  HARVESTER_PROJECT_PATH: 'src/Harvester/Harvester.csproj' 
+  HARVESTER_CONFIGURATION: 'Release'
+  HARVESTER_DIST_FOLDER: 'src/Harvester/bin/Release/netcoreapp3.1/linux-arm/publish'
+  DOTNET_VERSION: '3.1.301'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checking out code'
+      uses: actions/checkout@master
+      
+    - name: 'Setting up .NET ${{ env.DOTNET_VERSION }} environment'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: 'Building harvester project from ${{ env.HARVESTER_PROJECT_PATH }}'
+      shell: bash
+      run: dotnet publish ${{ env.HARVESTER_PROJECT_PATH }} --configuration ${{ env.HARVESTER_CONFIGURATION }} /p:PublishSingleFile=true -r linux-arm
+
+    - name: 'Downloading build artifacts'
+      uses: actions/download-artifact@v2
+      id: download
+      with:
+        path: ${{ HARVESTER_DIST_FOLDER }}
+
+    - name: 'Echo download path'
+      run: echo ${{steps.download.outputs.download-path}}

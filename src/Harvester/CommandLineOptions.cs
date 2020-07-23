@@ -11,8 +11,8 @@ public class CommandLineOptions
 	[Option("keyvaultclientsecret", Default = null, Required = false, HelpText = "Required to access secrets stored in Azure Key Vault. Usage: '--keyvaultclientsecret=secret' (find secret in Azure AD App registration)")]
 	public string KeyVaultClientSecret { get; set; }
 
-	[Option("configsettingssource", Default = null, Required = false, HelpText = "Specify 'local' to read configuration from local user secrets or 'keyvault' to use Azure Key Vaule. By default, development builds are using user secrets and release builds are using Key Vault.")]
-	public string ConfigSettingsSource { get; set; }
+	[Option("ignoresecretsettings", Default = null, Required = false, HelpText = "By default, development builds are using user secrets and release builds are using Key Vault. If this setting is true, settings will only be read from appsettings.json.")]
+	public bool IgnoreSecretSettings { get; set; }
 
 	/*
 	[Usage(ApplicationAlias = "harvester")]

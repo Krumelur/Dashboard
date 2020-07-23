@@ -14,6 +14,7 @@
             "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/Harvester.dll",
 			//"args": ["--ignorelastsourceupdate", "--keyvaultclientid=clientid", "--keyvaultclientsecret=clientsecret"],
 			"args": ["--ignorelastsourceupdate"],
+			"env": {"NETCORE_ENVIRONMENT":"Development"},
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",

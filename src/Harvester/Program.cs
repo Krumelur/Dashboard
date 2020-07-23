@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
+using NReco.Logging.File;
 
 namespace Harvester
 {
@@ -25,22 +26,13 @@ namespace Harvester
 
 		static async Task Main(string[] args)
 		{
-			var serviceProvider = new ServiceCollection()
-				.AddLogging(cfg => cfg.AddConsole())
-				.AddLogging(cfg => cfg.AddDebug())
-				.Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Trace)
-				.BuildServiceProvider();
-			
-			Logger = serviceProvider.GetService<ILogger<Program>>();
-
 			CommandLineOptions commandLineOptions = null;
 			Parser.Default.ParseArguments<CommandLineOptions>(args)
-				.WithParsed(opt => commandLineOptions = opt)
-				.WithNotParsed(HandleCommandLineParsingError);
+				.WithParsed(opt => commandLineOptions = opt);
 
 			//Determines the working environment as IHostingEnvironment is unavailable in a console app
 			var devEnvironmentVariable = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
-			var isDevelopment = string.IsNullOrEmpty(devEnvironmentVariable) || devEnvironmentVariable.ToLower() == "development";
+			var isDevelopment = devEnvironmentVariable != null && devEnvironmentVariable.ToLower() == "development";
 
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
@@ -49,41 +41,64 @@ namespace Harvester
 			// Build now because we need configuration from appsettings.json to build the configuration for key vault.
 			Configuration = builder.Build();
 
+			var loggingSection = Configuration.GetSection("Logging");
+			
+			var serviceProvider = new ServiceCollection()
+				.AddLogging(cfg => {
+					cfg.AddConsole();
+					if(isDevelopment)
+					{
+						cfg.AddDebug();
+					}
+				})
+				.AddLogging(cfg => cfg.AddFile(loggingSection))
+				.Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Trace)
+				.BuildServiceProvider();
+			
+			Logger = serviceProvider.GetService<ILogger<Program>>();
+
 			HarvesterSettings = new HarvesterSettings();
 			Configuration.Bind("HarvesterSettings", HarvesterSettings);
 
-			// Only add secrets in development or when forced - otherwise use key vault.
-			if (commandLineOptions.ConfigSettingsSource?.ToLowerInvariant() != "keyvault" && (isDevelopment || commandLineOptions.ConfigSettingsSource?.ToLowerInvariant() == "local"))
+			if(commandLineOptions.IgnoreSecretSettings)
 			{
-				Logger.LogInformation("Using local configuration settings");
-				builder.AddUserSecrets<Program>();
-				Configuration = builder.Build();
+				Logger.LogInformation("Ignoring user secrets and key vault settings - forcing usage of appsettings.json");
 			}
 			else
 			{
-				Logger.LogInformation("Using key vault's configuration settings");
-
-				if(string.IsNullOrWhiteSpace(HarvesterSettings.KeyVaultUri))
+				// Only add secrets in development - otherwise use key vault.
+				if (isDevelopment)
 				{
-					Logger.LogError("Cannot launch harvester - 'KeyVaultUri' is missing from appsettings.json.");
-					return;
+					Logger.LogInformation("Using local configuration settings");
+					builder.AddUserSecrets<Program>();
+					Configuration = builder.Build();
 				}
-
-				if(string.IsNullOrWhiteSpace(commandLineOptions.KeyVaultClientId))
+				else
 				{
-					Logger.LogError("Cannot launch harvester - command line parameter 'keyvaultclientid' must be specified.");
-					return;
-				}
+					Logger.LogInformation("Using key vault's configuration settings");
 
-				if(string.IsNullOrWhiteSpace(commandLineOptions.KeyVaultClientSecret))
-				{
-					Logger.LogError("Cannot launch harvester - command line parameter 'keyvaultclientsecret' must be specified.");
-					return;
-				}
+					if(string.IsNullOrWhiteSpace(HarvesterSettings.KeyVaultUri))
+					{
+						Logger.LogError("Cannot launch harvester - 'KeyVaultUri' is missing from appsettings.json.");
+						return;
+					}
 
-				// Use Azure Key Vault from a console app: https://c-sharx.net/read-secrets-from-azure-key-vault-in-a-net-core-console-app
-				builder.AddAzureKeyVault(HarvesterSettings.KeyVaultUri, clientId: commandLineOptions.KeyVaultClientId, clientSecret: commandLineOptions.KeyVaultClientSecret);
-				Configuration = builder.Build();
+					if(string.IsNullOrWhiteSpace(commandLineOptions.KeyVaultClientId))
+					{
+						Logger.LogError("Cannot launch harvester - command line parameter 'keyvaultclientid' must be specified.");
+						return;
+					}
+
+					if(string.IsNullOrWhiteSpace(commandLineOptions.KeyVaultClientSecret))
+					{
+						Logger.LogError("Cannot launch harvester - command line parameter 'keyvaultclientsecret' must be specified.");
+						return;
+					}
+
+					// Use Azure Key Vault from a console app: https://c-sharx.net/read-secrets-from-azure-key-vault-in-a-net-core-console-app
+					builder.AddAzureKeyVault(HarvesterSettings.KeyVaultUri, clientId: commandLineOptions.KeyVaultClientId, clientSecret: commandLineOptions.KeyVaultClientSecret);
+					Configuration = builder.Build();
+				}
 			}
 
 			// Bind again because values from user secrets or key vault have been added.
@@ -94,12 +109,6 @@ namespace Harvester
 			Console.WriteLine("Dashboard Harvester");
 			Console.WriteLine();
 			await RunHarvester(commandLineOptions);
-		}
-
-		private static void HandleCommandLineParsingError(IEnumerable<Error> errors)
-		{
-			Logger.LogError("Error parsing command line options.");
-			Console.WriteLine("Error parsing command line options.");
 		}
 
 		static async Task RunHarvester(CommandLineOptions options)
