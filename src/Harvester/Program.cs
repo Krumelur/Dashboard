@@ -28,7 +28,13 @@ namespace Harvester
 		{
 			CommandLineOptions commandLineOptions = null;
 			Parser.Default.ParseArguments<CommandLineOptions>(args)
-				.WithParsed(opt => commandLineOptions = opt);
+				.WithParsed(opt => commandLineOptions = opt)
+				.WithNotParsed(errors => {});
+
+			if(commandLineOptions == null)
+			{
+				return;
+			}
 
 			//Determines the working environment as IHostingEnvironment is unavailable in a console app
 			var devEnvironmentVariable = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
@@ -148,7 +154,16 @@ namespace Harvester
 
 			connectionStringBuilder.TryGetValue("AccountKey", out object key);
 			connectionStringBuilder.TryGetValue("AccountEndpoint", out object uri);
-			DbClient = new CosmosClient(uri.ToString(), key.ToString());
+			
+			if(options.DeactivateDatabaseConnection)
+			{
+				DbClient = null;
+				Logger.LogInformation("Disable database connection - no updates to the DB will be made.");
+			}
+			else
+			{
+				DbClient = new CosmosClient(uri.ToString(), key.ToString());
+			}
 
 			// Loop forever: check if a source is due, process it, sleep.
 			while (true)

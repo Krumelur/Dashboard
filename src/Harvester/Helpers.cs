@@ -89,8 +89,15 @@ namespace Harvester
 			SaveSourceConfig(sourceConfig, logger);
 
 			// Save to database.
-			var container = dbClient.GetContainer("dashboard", "sourcedata");
-			await container.UpsertItemAsync(sourceData);
+			if(dbClient != null)
+			{
+				var container = dbClient.GetContainer("dashboard", "sourcedata");
+				await container.UpsertItemAsync(sourceData);
+			}
+			else
+			{
+				logger.LogWarning("CosmosClient is NULL - not saving source data!");
+			}
 		}
 	}
 }

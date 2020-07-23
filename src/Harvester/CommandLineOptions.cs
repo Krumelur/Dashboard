@@ -14,6 +14,9 @@ public class CommandLineOptions
 	[Option("ignoresecretsettings", Default = null, Required = false, HelpText = "By default, development builds are using user secrets and release builds are using Key Vault. If this setting is true, settings will only be read from appsettings.json.")]
 	public bool IgnoreSecretSettings { get; set; }
 
+	[Option("deactivatedatabaseconnection", Default = false, Required = false, HelpText = "If true, no connection to the database will be made and thus no updates. Useful for testing.")]
+	public bool DeactivateDatabaseConnection { get; set; }
+
 	/*
 	[Usage(ApplicationAlias = "harvester")]
 	public static IEnumerable<Example> Examples

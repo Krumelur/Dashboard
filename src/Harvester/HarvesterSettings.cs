@@ -14,5 +14,7 @@ namespace Harvester
 
 		// Put this in a user secrets file. Don't store it in local.settings.json!
 		public string CosmosDbConnectionString {get; set; }
+
+		public string PelletsUnitUri { get; set; }
 	}
 }
