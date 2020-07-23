@@ -3,7 +3,7 @@ name: Build Harvester for Linux (Raspberry)
 on:
   push:
     branches:
-      - server-console-based
+      - master
 
 env:
   HARVESTER_PROJECT_PATH: 'src/Harvester/Harvester.csproj' 
