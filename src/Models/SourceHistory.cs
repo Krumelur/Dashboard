@@ -5,7 +5,7 @@
     /// </summary>
     public class SourceHistory
 	{
-		public SourceConfig SourceConfig { get; set; }
+		public string SourceId { get; set; }
 		public SourceData[] HistoryData { get; set; }
 	}
 }

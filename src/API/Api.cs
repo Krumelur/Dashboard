@@ -34,7 +34,6 @@ namespace Dashboard.API
 		[FunctionName("GetSourceData")]
 		public async Task<IActionResult> GetSourceData(
 			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "sourcedata/{sourceId}")] HttpRequest req,
-			[CosmosDB("dashboard", "sourceconfig", ConnectionStringSetting = "CosmosDbConnectionString")] IEnumerable<SourceConfig> SourceConfigs,
 			[CosmosDB("dashboard", "sourcedata", ConnectionStringSetting = "CosmosDbConnectionString")] DocumentClient docClient,
 			string sourceId,
 			ILogger log)
@@ -58,12 +57,6 @@ namespace Dashboard.API
 				numDataPoints = 1;
 			}
 
-			var sourceConfig = SourceConfigs.FirstOrDefault(x => x.Id == sourceId);
-			if(sourceConfig == null)
-			{
-				log.LogWarning($"Unable to find source config item for ID '{sourceId}'");
-			}
-
 			var collectionUri = UriFactory.CreateDocumentCollectionUri("dashboard", "sourcedata");
 
 			// SELECT TOP 2 * FROM c WHERE c.SourceId='solar' ORDER BY c.TimeStampUtc DESC
@@ -82,7 +75,7 @@ namespace Dashboard.API
 			}
 
 			var result = new SourceHistory {
-				SourceConfig = sourceConfig,
+				SourceId = sourceId,
 				HistoryData = dataHistoryItems.ToArray()
 			};
 			
