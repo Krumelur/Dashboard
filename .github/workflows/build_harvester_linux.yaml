@@ -27,11 +27,8 @@ jobs:
       shell: bash
       run: dotnet publish ${{ env.HARVESTER_PROJECT_PATH }} --configuration ${{ env.HARVESTER_CONFIGURATION }} /p:PublishSingleFile=true -r linux-arm
 
-    - name: 'Downloading build artifacts'
-      uses: actions/download-artifact@v2
-      id: download
+    - name: 'Uploading build artifacts'
+      uses: actions/upload-artifact@v2
       with:
-        path: ${{ env.HARVESTER_DIST_FOLDER }}
-
-    - name: 'Echo download path'
-      run: echo ${{steps.download.outputs.download-path}}
+        name: harvester-linux-build
+        path: ${{ env.HARVESTER_DIST_FOLDER }} # or path/to/artifact
