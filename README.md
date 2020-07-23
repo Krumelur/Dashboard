@@ -1,8 +1,6 @@
 # Dashboard
 
-![Deploy Client to Azure](https://github.com/Krumelur/Dashboard/workflows/Deploy%20Client%20to%20Azure/badge.svg?branch=master)
-
-![Deploy Server Backend Functions to Azure](https://github.com/Krumelur/Dashboard/workflows/Deploy%20Server%20Backend%20Functions%20to%20Azure/badge.svg?branch=master)
+![Build Harvester for Linux (Raspberry)](https://github.com/Krumelur/Dashboard/workflows/Build%20Harvester%20for%20Linux%20(Raspberry)/badge.svg)
 
 Before breaking changes: https://github.com/Krumelur/Dashboard/tree/e055007854a09320428b1c572688bafaaf839713
 
