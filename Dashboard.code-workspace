@@ -11,9 +11,16 @@
 		},
 		{
 			"path": "src/Models"
+		},
+		{
+			"path": "src/Support"
+		},
+		{
+			"path": "src/Tests"
 		}
 	],
 	"settings": {
-		"debug.internalConsoleOptions": "neverOpen"
+		"debug.internalConsoleOptions": "neverOpen",
+		"dotnet-test-explorer.testProjectPath": "**/*Tests.csproj"
 	}
 }
