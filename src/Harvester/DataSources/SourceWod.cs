@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Dashboard.Models;
 using Harvester;
 using Microsoft.Extensions.Logging;
+using Dashboard.Support.WOD;
 
 namespace Dashboard.Harvester.DataSources.WOD
 {

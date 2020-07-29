@@ -154,10 +154,10 @@ namespace Dashboard.Support.Tesla
 		/// <param name="id">ID of the vehicle. This is the Id propety of VehicleResponse and NOT the VehicleId property!</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public async Task<VehicleResponse> WakeUpVehicleAsync(long id, CancellationToken cancellationToken = default(CancellationToken))
+		public async Task<VehicleResponse> WakeUpVehicleAsync(long id, int timeoutSeconds, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var result = await BASE_URL
-				.WithTimeout(_timeoutSeconds)
+				.WithTimeout(timeoutSeconds == 0 ? _timeoutSeconds : timeoutSeconds)
 				.AppendPathSegments("api/1/vehicles", id, "wake_up")
 				.WithHeader("User-Agent", _userAgent)
 				.WithOAuthBearerToken(_loginResponse.AccessToken)

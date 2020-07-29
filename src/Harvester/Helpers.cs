@@ -78,7 +78,16 @@ namespace Harvester
 				return;
 			}
 
-			var sourceData = await source.GetData();
+			SourceData sourceData = null;
+			try
+			{
+				sourceData = await source.GetData();	
+			}
+			catch (Exception ex)
+			{
+				logger.LogCritical($"Error getting source data: {ex}");
+			}
+			
 
 			// Update source configuration.
 			sourceConfig.LastUpdateUtc = DateTimeOffset.UtcNow;
@@ -87,6 +96,11 @@ namespace Harvester
 			DateTime? nextExecutionUtc = sourceConfigCronExpression.GetNextOccurrence(lastUpdateUtc);
 			sourceConfig.NextExecutionDueUtc = sourceConfigCronExpression.GetNextOccurrence(sourceConfig.LastUpdateUtc.Value.UtcDateTime);
 			SaveSourceConfig(sourceConfig, logger);
+
+			if(sourceData == null)
+			{
+				return;
+			}
 
 			// Save to database.
 			if(dbClient != null)

@@ -2,13 +2,12 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Dashboard.Models;
-using Flurl;
-using Flurl.Http;
 using Harvester;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using Dashboard.Support.Pellets;
 
 namespace Dashboard.Harvester.DataSources.Pellets
 {
@@ -20,18 +19,8 @@ namespace Dashboard.Harvester.DataSources.Pellets
 	
 		public async override Task<SourceData> GetData()
 		{
-			const string suppliesUrlPath = "user/var/112/10201/0/0/12015";
-			const string errorsUrlPath = "user/errors";
-
-			var result = await _harvesterSettings.PelletsUnitUri
-				.AppendPathSegment(suppliesUrlPath)
-				.GetStringAsync();
-
-			var xml = XElement.Parse(result).ToString();
-			var value = Convert.ToDouble(this.GetContentElement(xml, "value").Value);
-			var divider = Convert.ToDouble(this.GetContentElement(xml, "value").Attribute("scaleFactor").Value);
-
-			var amountKg = (int)Math.Round(value / divider);
+			var pelletsHelper = new PelletsHelper(_harvesterSettings.PelletsUnitUri);
+			var pelletsData = await pelletsHelper.GetPelletsData(30);
 
 			var dataItems = new List<DataItem>
 			{
@@ -40,32 +29,24 @@ namespace Dashboard.Harvester.DataSources.Pellets
 					Id = "supplies",
 					Type = DataItemType.Integer,
 					Label = "Lager (kg)",
-					Value = amountKg
+					Value = pelletsData.SuppliesKg
 				}
 			};
 
-			result = await _harvesterSettings.PelletsUnitUri
-				.AppendPathSegment(errorsUrlPath)
-				.GetStringAsync();
-
-			xml = XElement.Parse(result).ToString();
-
-			foreach (var errorEl in this.GetContentElements(xml, "error", true))
+			if(pelletsData.Errors != null)
 			{
-				var msg = errorEl.Attribute("msg").Value;
-				var desc = errorEl.Value.ToString();
-				var errorTypeRaw = errorEl.Attribute("priority").Value;
-				var errorType = errorTypeRaw.ToLower().Contains("warn") ? "warning" : "error";
-
-				dataItems.Add(
-					new DataItem
-					{
-						Id = "error",
-						Type = DataItemType.Text,
-						Label = errorType,
-						Value = msg + ": " + desc
-					}
-				);
+				foreach (var error in pelletsData.Errors)
+				{
+					dataItems.Add(
+						new DataItem
+						{
+							Id = "error",
+							Type = DataItemType.Text,
+							Label = error.ErrorTypeRaw,
+							Value = error.Message + ": " + error.Description
+						}
+					);
+				}
 			}
 			
 			var sourceData = new SourceData

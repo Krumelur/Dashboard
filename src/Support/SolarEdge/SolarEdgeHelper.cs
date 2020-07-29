@@ -4,7 +4,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Dashboard.Harvester.DataSources.SolarEdge
+namespace Dashboard.Support.SolarEdge
 {
 	public class SolarEdgeHelper
 	{

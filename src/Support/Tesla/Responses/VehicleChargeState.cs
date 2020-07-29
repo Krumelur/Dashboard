@@ -29,7 +29,13 @@ namespace Dashboard.Support.Tesla
 		/// Charging, idle, ...
 		/// </summary>
 		[JsonProperty("charging_state")]
-		public string ChargingSate { get; set; }
+		public string ChargingState { get; set; }
+
+		/// <summary>
+		/// Charge rate/power in kW
+		/// </summary>
+		[JsonProperty("charger_power")]
+		public float ChargePower { get; set; }
 
 		/// <summary>
 		/// Usable kWh of battery.
@@ -37,6 +43,6 @@ namespace Dashboard.Support.Tesla
 		[JsonProperty("usable_battery_level")]
 		public int UsableBatteryLevel { get; set; }
 
-		public override string ToString() => $"[{nameof(VehicleChargeState)}] SOC = {ChargeLevelPercent}; State = {ChargingSate}";
+		public override string ToString() => $"[{nameof(VehicleChargeState)}] SOC = {ChargeLevelPercent}; State = {ChargingState}";
 	}
 }
