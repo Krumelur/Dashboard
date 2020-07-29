@@ -66,7 +66,10 @@ All **sensitive configuration** should be placed in a user secrets file `secrets
 #### Source specific configuration
 
 When executed the first time, the harvester will create a configuration file for every source using the convention `<SOURCE_ID>.json`.
-These files will live in `{Environment.SpecialFolder.ApplicationData}/dashboardharvester`. On macOS this resolves to `/Users/<USERNAME>/.config/dashboardharvester`.
+These files will live in `{Environment.SpecialFolder.ApplicationData}/dashboardharvester`.
+
+* On macOS this resolves to `/Users/<USERNAME>/.config/dashboardharvester`
+* On Raspbian the folder is located at `/home/pi/.config/dashboardharvester`
 
 ```json
 {
@@ -88,25 +91,42 @@ These files will live in `{Environment.SpecialFolder.ApplicationData}/dashboardh
 
 ### Build release version for Raspberry
 
-- Execute `dotnet publish -c Release /p:PublishSingleFile=true -r linux-arm`
-- Locate the generated files at `src/Harvester/bin/Release/netcoreapp3.1/linux-arm/publish`
-- Copy all files to Raspberry at `/home/pi/Apps/Harvester`
-- Run as a service on Raspberry (https://www.raspberrypi.org/documentation/linux/usage/systemd.md):
-  - Under `/etc/systemd/system` create a file called `harvester.service`
-  - Paste the content below
+The main branch of this repo has an action defined that automatically builds a Linux executable upon a push.
+By checking the last build under `https://github.com/Krumelur/Dashboard/actions?query=workflow%3A%22Build+Harvester+for+Linux+%28Raspberry%29%22`the newest ZIP containing the harvester can be downloaded.
+
+**To make the harvester executable, run** `chmod +x Harvester`
+
+For manual builds use:
+
+* Execute `dotnet publish -c Release /p:PublishSingleFile=true -r linux-arm`
+* Locate the generated files at `src/Harvester/bin/Release/netcoreapp3.1/linux-arm/publish`
+* Copy all files to Raspberry at `/home/pi/Apps/Harvester`
+
+### Run harvester as a service on Raspberry
+
+Information: https://www.raspberrypi.org/documentation/linux/usage/systemd.md
+
+* Under `/etc/systemd/system` create a file called `harvester.service`
+* Paste the content below
 
 ```bash
 [Unit]
 Description=Dashboard Harvester
 After=multi-user.target
- 
+
 [Service]
 Type=simple
-ExecStart=/home/pi/Apps/Harvester/Harvester --whatever=params
+ExecStart=/home/pi/Apps/Harvester/Harvester --keyvaultclientid=<client ID from Azure AD> --keyvaultclientsecret=<client secret from Azure AD>
 WorkingDirectory=/home/pi/Apps/Harvester
 Restart=on-abort
 User=pi
- 
+
 [Install]
 WantedBy=multi-user.target
 ```
+
+* Start the service with the command: `sudo systemctl start harvester.service`
+* Get the status of the service with the command: `sudo systemctl status harvester.service`
+* Stop the service with the command: `sudo systemctl stop harvester.service`
+
+If the service starts and stops as expected and the status shows no errors, run `sudo systemctl enable harvester.service` to launch it automatically upon booting the Raspberry.
