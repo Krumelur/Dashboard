@@ -4,7 +4,8 @@
 	{
 		Text = 1,
 		Integer = 1,
-		Decimal = 2
+		Decimal = 2,
+		Boolean = 3
 	}
 
     /// <summary>

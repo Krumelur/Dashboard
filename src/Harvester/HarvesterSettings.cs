@@ -16,5 +16,13 @@ namespace Harvester
 		public string CosmosDbConnectionString {get; set; }
 
 		public string PelletsUnitUri { get; set; }
+
+		public string TeslaClientId {get; set;}
+
+		public string TeslaClientSecret {get; set;}
+
+		public string TeslaUsername {get; set;}
+		
+		public string TeslaPassword {get; set;}
 	}
 }

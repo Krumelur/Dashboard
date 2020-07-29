@@ -4,6 +4,7 @@ using Dashboard.Models;
 using Harvester;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Dashboard.Support.SolarEdge;
 
 namespace Dashboard.Harvester.DataSources.SolarEdge
 {
