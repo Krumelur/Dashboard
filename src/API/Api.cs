@@ -42,12 +42,6 @@ namespace Dashboard.API
 			
 			var configItemsToProcess = new List<SourceConfig>();
 
-			var authKey = _config["StandardPermsFunctionsAuthKey"];
-			if(!Helpers.CheckFunctionAuthKey(authKey, req))
-			{
-				return new BadRequestObjectResult("Failed to verify StandardPermsFunctionsAuthKey.");
-			}
-
 			if(int.TryParse(req.Query["numdatapoints"], out int numDataPoints))
 			{
 				log.LogInformation($"Number of data points was specified: '{1}'");
@@ -57,20 +51,33 @@ namespace Dashboard.API
 				numDataPoints = 1;
 			}
 
+			var sensitiveDataPin = _config["SensitiveDataPin"];
+			bool isSensitiveDataPinPresent = Helpers.IsSensitiveDataPinProvided(sensitiveDataPin, req);
+
 			var collectionUri = UriFactory.CreateDocumentCollectionUri("dashboard", "sourcedata");
 
 			// SELECT TOP 2 * FROM c WHERE c.SourceId='solar' ORDER BY c.TimeStampUtc DESC
-			var query = docClient.CreateDocumentQuery<SourceData>(collectionUri)
-			.Where(x => x.SourceId == sourceId)
-			.OrderByDescending(x => x.TimeStampUtc)
-			.Take(numDataPoints)
-			.AsDocumentQuery();
+			var query = docClient
+				.CreateDocumentQuery<SourceData>(collectionUri)
+				.Where(x => x.SourceId == sourceId)
+				.OrderByDescending(x => x.TimeStampUtc)
+				.Take(numDataPoints)
+				.AsDocumentQuery();
 
 			var dataHistoryItems = new List<SourceData>();
 
 			while(query.HasMoreResults)
 			{
 				var documents = await query.ExecuteNextAsync<SourceData>();
+
+				// Filter all data items in the document and exclude sensitive ones if the PIN is not provided.
+				foreach (var document in documents)
+				{
+					document.DataItems = document
+						.DataItems
+						.Where(x => !x.IsSensitive || isSensitiveDataPinPresent)
+						.ToArray();
+				}
 				dataHistoryItems.AddRange(documents);
 			}
 

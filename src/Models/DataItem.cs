@@ -21,6 +21,13 @@
 
 		public object Value { get; set; }
 
+		/// <summary>
+		/// Indicates if this is sensitive data that should only be returned to the caller if they 
+		/// provide extra authorization.
+		/// </summary>
+		/// <value></value>
+		public bool IsSensitive { get; set; }
+
 		public override string ToString() => $"[{nameof(DataItem)}] Id = '{Id}', Type = '{Type}', Label = '{Label}', Value = '{Value}'";
 	}
 }

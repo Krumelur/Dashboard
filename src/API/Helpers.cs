@@ -25,5 +25,26 @@ namespace Dashboard.API
 
 			return true;
 		}
+
+		public static bool IsSensitiveDataPinProvided(string requiredPin, HttpRequest req)
+		{
+			// Never check any keys when running locally.
+			if(req.Host.Host == "127.0.0.1" || req.Host.Host.ToLowerInvariant() == "localhost")
+			{
+				return true;
+			}
+
+			if(String.IsNullOrWhiteSpace(requiredPin))
+			{
+				return false;
+			}
+
+			if(req.Headers["sensitive-data-pin"] != requiredPin)
+			{
+				return false;
+			}
+
+			return true;
+		}
 	}
 }
