@@ -1,23 +1,45 @@
 ﻿@page "/"
 
-<Container Fluid="true">
-	<Row Gutter="(16, 16)">
-		<Column ColumnSize="ColumnSize.Is6.OnDesktop.Is12.OnMobile">
-			<SolarSourceCard/>
-		</Column>
 
-		<Column ColumnSize="ColumnSize.Is6.OnDesktop.Is12.OnMobile">
-			<PelletsSourceCard/>
-		</Column>
-	</Row>
+<Tabs Pills="false" SelectedTab="@selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
+	<Items>
+		<Tab Name="overview">&Uuml;bersicht</Tab>
+		<Tab Name="solar">Photovoltaik</Tab>
+		<Tab Name="pellets">Pellets</Tab>
+		<Tab Name="wod">WOD</Tab>
+		<Tab Name="tesla">Tesla</Tab>
+	</Items>
 
-	<Row Gutter="(16, 16)">
-		<Column ColumnSize="ColumnSize.Is6.OnDesktop.Is12.OnMobile">
-			<TeslaSourceCard/>
-		</Column>
+	<Content>
+		<TabPanel Name="overview">
+			<TabOverview/>
+		</TabPanel>
 
-		<Column ColumnSize="ColumnSize.Is6.OnDesktop.Is12.OnMobile">
-			<WodSourceCard/>
-		</Column>
-	</Row>
-</Container>
+		<TabPanel Name="solar">
+			Content for solar.
+		</TabPanel>
+
+		<TabPanel Name="pellets">
+			Content for pellets.
+		</TabPanel>
+
+		<TabPanel Name="wod">
+			Content for WOD.
+		</TabPanel>
+
+		<TabPanel Name="tesla">
+			Content for Tesla.
+		</TabPanel>
+
+		
+</Content>
+</Tabs>
+
+@code{
+	string selectedTab = "overview";
+
+	private void OnSelectedTabChanged(string name)
+	{
+		selectedTab = name;
+	}
+}

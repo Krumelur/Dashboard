@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 
-namespace Client.Shared
+namespace Client.Shared.SourceCards
 {
 	public partial class TeslaSourceCard : ComponentBase
 	{
@@ -22,7 +22,7 @@ namespace Client.Shared
 
 		async Task<SourceHistory> GetSourceHistory(string sourceId, int dataPoints = 1)
 		{
-			var authKey = Configuration["StandardPermsFunctionsAuthKey"];
+			var authKey = Configuration["FunctionsAuthKey"];
 			var baseUrl = Configuration["ApiBaseUrl"];
 
 			var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/api/sourcedata/{sourceId}?numDataPoints={dataPoints}");

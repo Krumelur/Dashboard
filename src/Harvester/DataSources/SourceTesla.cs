@@ -51,21 +51,23 @@ namespace Dashboard.Harvester.DataSources.Tesla
 			if(vehicle.Status != "online")
 			{
 				_logger.LogInformation($"Car is not online. Not retrieving data. Status is: '{vehicle.Status}'");
-				return new SourceData
-				{
-					Id = Guid.NewGuid().ToString(),
-					SourceId = "tesla",
-					TimeStampUtc = DateTimeOffset.UtcNow,
-					DataItems = new DataItem[] {
-						new DataItem
-						{
-							Id = "vehicle_state",
-							Type = DataItemType.Decimal,
-							Label = "Fahrzeugzustand",
-							Value = vehicle.Status
-						}
-					}
-				};
+				// return new SourceData
+				// {
+				// 	Id = Guid.NewGuid().ToString(),
+				// 	SourceId = "tesla",
+				// 	TimeStampUtc = DateTimeOffset.UtcNow,
+				// 	DataItems = new DataItem[] {
+				// 		new DataItem
+				// 		{
+				// 			Id = "vehicle_state",
+				// 			Type = DataItemType.Decimal,
+				// 			Label = "Fahrzeugzustand",
+				// 			Value = vehicle.Status
+				// 		}
+				// 	}
+				// };
+
+				return null;
 			}
 
 			var vehicleData = await teslaApi.GetVehicleDataAsync(vehicle.Id);
@@ -102,28 +104,33 @@ namespace Dashboard.Harvester.DataSources.Tesla
 						Id = "heading",
 						Type = DataItemType.Integer,
 						Label = "Fahrtrichtung",
-						Value = vehicleData.DriveState.Heading
+						Value = vehicleData.DriveState.Heading,
+						IsSensitive = true
 					},
 					new DataItem
 					{
 						Id = "shift_state",
 						Type = DataItemType.Text,
 						Label = "Fahrzustand",
-						Value = vehicleData.DriveState.ShiftState
+						Value = vehicleData.DriveState.ShiftState,
+						IsSensitive = true
+						
 					},
 					new DataItem
 					{
 						Id = "latitude",
 						Type = DataItemType.Decimal,
 						Label = "Breitengrad",
-						Value = vehicleData.DriveState.Latitude
+						Value = vehicleData.DriveState.Latitude,
+						IsSensitive = true
 					},
 					new DataItem
 					{
 						Id = "longitude",
 						Type = DataItemType.Decimal,
 						Label = "Längengrad",
-						Value = vehicleData.DriveState.Longitude
+						Value = vehicleData.DriveState.Longitude,
+						IsSensitive = true
 					},
 					new DataItem
 					{
