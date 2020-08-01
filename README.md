@@ -130,3 +130,36 @@ WantedBy=multi-user.target
 * Stop the service with the command: `sudo systemctl stop harvester.service`
 
 If the service starts and stops as expected and the status shows no errors, run `sudo systemctl enable harvester.service` to launch it automatically upon booting the Raspberry.
+
+## Client
+
+The client app is built with [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) an [Blazorise](https://blazorise.com/) as an abstraction over Bootstrap. It's using the web-assembly (WASM) mode of Blazor and is hosted on an Azure Blob Storage account. In the repo, there's a [GitHub action](https://github.com/Krumelur/Dashboard/actions?query=workflow%3A%22Deploy+Blazor+Client+to+Azure%22) to automatically deploy the main branch upon changes.
+
+Data shown in the client is retrieved from the [Dashboard API](#api).
+
+### Required configuration
+
+* To call into the API, the base URL must be configured using `ApiBaseUrl`
+* The access the API, a key named `StandardPermsFunctionsAuthKey` is required. This key is not meant to be a highly sensitive secret but merely to prevent the API from being called by anyone too easily in order to avoid unnecessary cost.
+
+All settings should be stored in `wwwroot/appsettings.json`:
+
+```json
+{
+  "ApiBaseUrl": "https://NAME_OF_FUNCTIONS_WEB_APP.azurewebsites.net",
+  "StandardPermsFunctionsAuthKey": "<KEY AS CONFIGURED IN API PROJECT>"
+}
+```
+
+## API
+
+The Dashboard project includes a Azure Functions based API layer which retrieves (historical) source data from the CosmosDB database.
+
+The API gets automatically deployed to Azure using a [GitHub action](https://github.com/Krumelur/Dashboard/actions?query=workflow%3A%22Deploy+API+project+to+Azure+Functions%22).
+
+All endpoints of the API are protected by a key (`AuthorizationLevel.Function`).
+The functions web app resource on Azure should configure a "Host" key called `StandardPerms` at host level (Web app project -> "App keys" in the side menu in the portal) which will then be usable for all functions. This key must match the one configured for the [client app](#required-configuration).
+
+The key is not meant to be a highly sensitive secret but merely to prevent the API from being called by anyone too easily in order to avoid unnecessary cost.
+
+API functions that perform security sensitive operations use additional protection. 

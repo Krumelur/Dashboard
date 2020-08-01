@@ -22,7 +22,9 @@ namespace Client.Shared
 		async Task<SourceHistory> GetSourceHistory(string sourceId, int dataPoints = 1)
 		{
 			var authKey = Configuration["StandardPermsFunctionsAuthKey"];
-			var request = new HttpRequestMessage(HttpMethod.Get, $"https://krumelurdashboardapi.azurewebsites.net/api/sourcedata/{sourceId}?numDataPoints={dataPoints}");
+			var baseUrl = Configuration["ApiBaseUrl"];
+
+			var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/api/sourcedata/{sourceId}?numDataPoints={dataPoints}");
 			request.Headers.Add("x-functions-key", authKey);
 
 			try
