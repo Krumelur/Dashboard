@@ -7,7 +7,6 @@
     <title>Client</title>
 	<base href="/" />
 	
-    <!--<link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />-->
 	<link href="css/app.css" rel="stylesheet" />
 	
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -29,6 +28,41 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 	<script src="_content/Blazorise.Charts/blazorise.charts.js"></script>
+
+	<script type="text/javascript">
+		var bingMap = null;
+
+		function updateBingMap(latitude, longitude)
+		{
+			if(bingMap === null)
+			{
+				bingMap = new Microsoft.Maps.Map("#bingMap");
+			}
+
+			bingMap.setView(
+				{
+            		center: new Microsoft.Maps.Location(latitude, longitude),
+            		zoom: 12
+				}
+			);
+
+			for (var i = bingMap.entities.getLength() - 1; i >= 0; i--)
+			{
+				var pushpin = bingMap.entities.get(i);
+				if (pushpin instanceof Microsoft.Maps.Pushpin)
+				{
+					bingMap.entities.removeAt(i);
+				}
+			}
+
+			var pushpin = new Microsoft.Maps.Pushpin(bingMap.getCenter(), null);
+            bingMap.entities.push(pushpin);
+
+			return true;
+		}
+	</script>
+
+	<script type="text/javascript" src="https://www.bing.com/api/maps/mapcontrol?key=AvAZ41XuFyemuiwwmmyyikIHHoRQ-1jEkiS7hAil-6xWIHqyTkPApb263b-YRNrh"></script>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
