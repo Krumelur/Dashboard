@@ -4,15 +4,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blazorise.Charts;
 using Microsoft.AspNetCore.Components.Web;
+using Dashboard.Models;
 
 namespace Client.Shared.SourceCards
 {
 	public partial class PelletsSourceCard : BaseSourceCard
 	{
+		public override string SourceId => "pellets";
+
+		public override int NumInitialDataPoints => 30;
+
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
-			var history = await GetSourceHistory("pellets", 30);
+			await UpdateInitialHistory();
+			await RefreshUI(InitialHistory);
+		}
 
+		async Task RefreshUI(SourceHistory history)
+		{
 			var labels = history.HistoryData
 				.Select(d => d.TimeStampUtc.LocalDateTime.ToString("d.M."))
 				.Reverse()
@@ -49,9 +58,9 @@ namespace Client.Shared.SourceCards
 
 		protected LineChart<double> lineChart;
 
-		protected override async Task OnInitializedAsync()
+		protected override async Task InitialHistoryLoaded()
 		{
-			await HandleRefreshClick(null);
+			await RefreshUI(InitialHistory);
 		}
 	}
 }

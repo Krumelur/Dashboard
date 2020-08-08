@@ -1,15 +1,13 @@
 ﻿@inherits BaseSourceCard
 
-<Card>
-	<CardBody>
-		<CardTitle Size="5">WOD</CardTitle>
-		<CardText>
-			@((MarkupString)WodHtml)
-		</CardText>
-
-		
-<div id="osm-map"></div>
-
-		<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
-	</CardBody>
-</Card>
+<SourceCard TitleLeft="Tesla" TitleRight="@TimeStampSource">
+	<Row>
+		<Column ColumnSize="ColumnSize.Is12">
+			<DataItemOneCol>
+				@((MarkupString)WodHtml)
+			</DataItemOneCol>
+		</Column>
+	</Row>
+	
+	<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
+</SourceCard>

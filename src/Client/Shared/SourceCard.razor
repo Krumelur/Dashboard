@@ -1,0 +1,29 @@
+<Card class="card">
+	<CardHeader class="card-header">
+		<Row>
+			<Column ColumnSize="ColumnSize.Is8">
+				<CardTitle Size="5">@TitleLeft</CardTitle>
+			</Column>
+
+			<Column ColumnSize="ColumnSize.Is4">
+				<Text Alignment="TextAlignment.Right">@TitleRight</Text>
+			</Column>
+		</Row>
+	</CardHeader>
+
+	<CardBody class="card-body">
+		@ChildContent
+	</CardBody>
+</Card>
+
+@code
+{
+	[Parameter]
+	public string TitleLeft { get; set; }
+	
+	[Parameter]
+	public string TitleRight { get; set; }
+
+	[Parameter]
+ 	public RenderFragment ChildContent { get; set; }
+}

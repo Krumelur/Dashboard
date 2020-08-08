@@ -1,0 +1,23 @@
+<Card class="card-datapoint">
+	<Container>
+		<Row>
+			<Column class="my-auto">
+				<Text Alignment="TextAlignment.Left">
+					@Label
+				</Text>
+			</Column>
+			<Column ColumnSize="ColumnSize.Is3.WithOffset">
+				@ChildContent
+			</Column>
+		</Row>
+	</Container>
+</Card>
+
+@code
+{
+	[Parameter]
+	public string Label { get; set; }
+
+	[Parameter]
+ 	public RenderFragment ChildContent { get; set; }
+}

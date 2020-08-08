@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Dashboard.Models;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
@@ -8,14 +9,20 @@ namespace Client.Shared.SourceCards
 {
 	public partial class TeslaSourceCard : BaseSourceCard
 	{
-		public string TimeStampSource { get; set; }
+		public override string SourceId => "tesla";
+
+		public override int NumInitialDataPoints => 1;
+
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
-			var history = await GetSourceHistory("tesla", 1);
+			await UpdateInitialHistory();
+			RefreshUI(InitialHistory);
+		}
 
+		void RefreshUI(SourceHistory history)
+		{
 			// We're only retrieving one item.
 			var singleSourceData = history.HistoryData[0];
-			TimeStampSource = singleSourceData.TimeStampUtc.ToLocalTime().ToString("g");
 			var vehicleStateItem = singleSourceData.DataItems.First(x => x.Id == "vehicle_state");
 			var vehicleState = Convert.ToString(vehicleStateItem.Value);
 
@@ -36,17 +43,11 @@ namespace Client.Shared.SourceCards
 
 		public bool IsCarOffline { get; set; }
 
-		protected override async Task OnInitializedAsync()
+		protected override async Task InitialHistoryLoaded()
 		{
 			IsCarOffline = false;
-			await HandleRefreshClick(null);
-
+			RefreshUI(InitialHistory);
 			await JSRuntime.InvokeVoidAsync("updateBingMap", 47.855042, 12.185040);
-    	}
-
-		// protected override async Task OnAfterRenderAsync(bool firstRender)
-		// {
-			
-		// }
+		}
 	}
 }

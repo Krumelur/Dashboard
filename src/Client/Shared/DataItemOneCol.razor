@@ -1,0 +1,15 @@
+<Card class="card-datapoint">
+	<Container>
+		<Row>
+			<Column>
+				@ChildContent
+			</Column>
+		</Row>
+	</Container>
+</Card>
+
+@code
+{
+	[Parameter]
+ 	public RenderFragment ChildContent { get; set; }
+}

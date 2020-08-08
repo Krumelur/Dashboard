@@ -1,7 +1,57 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+/*
+Header background color: #DEE0F0
+Header text color: #1D2559
+
+Default text color: #222A5E
+
+Background dark: #454B97
+Background light: #BFC3D9
+Card header background: #DEE0F0
+Card background: #EBECF8
+Data point background: #F8F8FB
+
+Data item background: #E2E4F2
+Data item text color: #5F68BC
+
+Blue button background color: #5B63AF
+Blue button text color: #D9DBEC
+
+Dark contrast background: #151B2F
+Dark contrast text color: #C0C6F2
+
+
+*/
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	background-color: #D2D2E4;
+	color: #3d4261;
+}
+
+.card
+{
+	border:none;
+}
+
+.card-body
+{	
+	background-color: #EBECF8;
+	border:none;
+}
+
+.card-header
+{	
+	background-color: #DEE0F0;
+	color: #1D2559;
+	border:none;
+}
+
+.card-datapoint
+{
+	background-color: #F8F8FB;
+	border: none;
 }
 
 a, .btn-link {
