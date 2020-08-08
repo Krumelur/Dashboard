@@ -1,13 +1,7 @@
 ﻿@inherits BaseSourceCard
 
-<SourceCard TitleLeft="Tesla" TitleRight="@TimeStampSource">
-	<Row>
-		<Column ColumnSize="ColumnSize.Is12">
-			<DataItemOneCol>
-				@((MarkupString)WodHtml)
-			</DataItemOneCol>
-		</Column>
-	</Row>
+<SourceCard TitleLeft="WOD" TitleRight="@TimeStampSource">
+	@((MarkupString)WodHtml)
 	
 	<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
 </SourceCard>
