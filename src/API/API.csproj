@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
-    <UserSecretsId>34844a09-981a-487b-8d70-a8c1f0e36c56</UserSecretsId>
+    <UserSecretsId>34844a09-981a-487b-8d70-a8c1f0e36c57</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
