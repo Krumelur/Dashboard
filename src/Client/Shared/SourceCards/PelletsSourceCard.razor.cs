@@ -43,8 +43,8 @@ namespace Client.Shared.SourceCards
 			{
 				Label = currentSupplies,
 				Data = dataSupplies,
-				BackgroundColor = new List<string> { ChartColor.FromRgba(243, 120, 121, 0.5f) },
-				BorderColor = new List<string> { ChartColor.FromRgba(238, 64, 64, 0.5f) },
+				BackgroundColor = new List<string> { ChartColor.FromRgba(226, 228, 242, 0.8f) },
+				BorderColor = new List<string> { ChartColor.FromRgba(95, 104, 188, 0.5f) },
 				Fill = true,
 				PointRadius = 2,
 				BorderDash = new List<int> { }

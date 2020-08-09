@@ -16,7 +16,7 @@ namespace Client.Shared.SourceCards
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
 			await UpdateInitialHistory();
-			RefreshUI(InitialHistory);
+			await RefreshUI(InitialHistory);
 		}
 
 		async Task RefreshUI(SourceHistory history)
