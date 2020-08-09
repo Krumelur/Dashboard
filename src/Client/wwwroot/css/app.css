@@ -54,6 +54,12 @@ html, body {
 	border: none;
 }
 
+.navbar-custom
+{
+	background-color: #151B2F;
+	color: #C0C6F2;
+}
+
 a, .btn-link {
     color: #0366d6;
 }
