@@ -19,7 +19,7 @@ namespace Client.Shared.SourceCards
 			RefreshUI(InitialHistory);
 		}
 
-		void RefreshUI(SourceHistory history)
+		async Task RefreshUI(SourceHistory history)
 		{
 			// We're only retrieving one item.
 			var singleSourceData = history.HistoryData[0];
@@ -36,18 +36,24 @@ namespace Client.Shared.SourceCards
 
 				var chargeLevelPercentItem = history.HistoryData[0].DataItems.First(x => x.Id == "charge_level_percent");
 				ChargeLevelPercent = Convert.ToInt32(chargeLevelPercentItem.Value);
+
+				var carTemperatureItem = history.HistoryData[0].DataItems.First(x => x.Id == "inside_temperature");
+				CarTemperature = $"{Math.Round(Convert.ToDouble(carTemperatureItem.Value))}°";
 			}
+
+			await JSRuntime.InvokeVoidAsync("updateBingMap", 47.855042, 12.185040);
 		}
 
 		public int ChargeLevelPercent { get; set; }
+
+		public string CarTemperature { get; set; }
 
 		public bool IsCarOffline { get; set; }
 
 		protected override async Task InitialHistoryLoaded()
 		{
 			IsCarOffline = false;
-			RefreshUI(InitialHistory);
-			await JSRuntime.InvokeVoidAsync("updateBingMap", 47.855042, 12.185040);
+			await RefreshUI(InitialHistory);
 		}
 	}
 }

@@ -3,7 +3,7 @@
 <SourceCard TitleLeft="Tesla" TitleRight="@TimeStampSource">
 	<Row>
 		<Column ColumnSize="ColumnSize.Is6">
-			<Row>
+			<Row Gutter="(0, 10)">
 				<Column>
 					<DataItemTwoCols Label="Ladezustand">
 						<svg width="100" height="50">
@@ -12,9 +12,11 @@
 					</DataItemTwoCols>
 				</Column>
 			</Row>
-			<Row>
+			<Row Gutter="(0, 10)">
 				<Column>
-					<img src="images/temperature.png" width="40"/>
+					<DataItemTwoCols Label="Innentemperatur">
+						@CarTemperature
+					</DataItemTwoCols>
 				</Column>
 			</Row>
 			<Row></Row>

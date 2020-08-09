@@ -1,13 +1,15 @@
 <Card class="card-datapoint">
 	<Container>
-		<Row>
-			<Column class="my-auto">
+		<Row style="height:50px;">
+			<Column ColumnSize="ColumnSize.Is7" class="my-auto">
 				<Text Alignment="TextAlignment.Left">
 					@Label
 				</Text>
 			</Column>
-			<Column ColumnSize="ColumnSize.Is3.WithOffset">
-				@ChildContent
+			<Column ColumnSize="ColumnSize.Is5" class="my-auto">
+				<Text Alignment="TextAlignment.Right">
+					@ChildContent
+				</Text>
 			</Column>
 		</Row>
 	</Container>
