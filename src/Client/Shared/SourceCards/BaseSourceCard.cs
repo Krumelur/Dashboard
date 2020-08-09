@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -52,6 +53,36 @@ namespace Client.Shared.SourceCards
 			}
 
 			var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/api/sourcedata/{sourceId}?numDataPoints={dataPoints}");
+			request.Headers.Add("x-functions-key", authKey);
+
+			try
+			{
+				var response = await HttpClient.SendAsync(request);
+				var responseContent = await response.Content.ReadAsStringAsync();
+				var historyData = JsonConvert.DeserializeObject<SourceHistory>(responseContent);
+
+				//Console.WriteLine(responseContent);
+				return historyData;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Failed to get source data: " + ex);
+				throw;
+			}
+		}
+
+		protected async Task<SourceHistory> GetSourceHistoryFiltered(Filter filter)
+		{
+			var authKey = Configuration["FunctionsAuthKey"];
+			var baseUrl = Configuration["ApiBaseUrl"];
+
+			if(_useMockData)
+			{
+				return JsonConvert.DeserializeObject<SourceHistory>(_mockData[filter.SourceId]);
+			}
+
+			var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/api/sourcedata");
+			request.Content = new StringContent(JsonConvert.SerializeObject(filter), Encoding.UTF8, "application/json");
 			request.Headers.Add("x-functions-key", authKey);
 
 			try
