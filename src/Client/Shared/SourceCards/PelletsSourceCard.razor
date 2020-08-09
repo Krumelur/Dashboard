@@ -1,7 +1,7 @@
-﻿<Card>
-	<CardBody>
-		<CardTitle Size="5">Pellets</CardTitle>
-		<LineChart @ref="lineChart" TItem="double" />
-		<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
-	</CardBody>
-</Card>
+﻿@inherits BaseSourceCard
+
+<SourceCard TitleLeft="Pellets" TitleRight="@TimeStampSource">
+	<LineChart @ref="lineChart" TItem="double" />
+
+	<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
+</SourceCard>

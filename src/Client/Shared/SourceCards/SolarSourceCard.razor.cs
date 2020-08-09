@@ -1,51 +1,27 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Blazorise.Charts;
-using Dashboard.Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
+using Dashboard.Models;
 
 namespace Client.Shared.SourceCards
 {
-	public partial class SolarSourceCard : ComponentBase
+	public partial class SolarSourceCard : BaseSourceCard
 	{
-		[Inject]
-		HttpClient HttpClient { get; set; }
+		public override string SourceId => "solar";
 
-		[Inject]
-		IConfiguration Configuration {get; set; }
-
-		async Task<SourceHistory> GetSourceHistory(string sourceId, int dataPoints = 1)
-		{
-			var authKey = Configuration["FunctionsAuthKey"];
-			var baseUrl = Configuration["ApiBaseUrl"];
-
-			var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/api/sourcedata/{sourceId}?numDataPoints={dataPoints}");
-			request.Headers.Add("x-functions-key", authKey);
-
-			try
-			{
-				var response = await HttpClient.SendAsync(request);
-				var responseContent = await response.Content.ReadAsStringAsync();
-				var historyData = JsonConvert.DeserializeObject<SourceHistory>(responseContent);
-				return historyData;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine("Failed to get source data: " + ex);
-				throw;
-			}
-		}
+		public override int NumInitialDataPoints => 6;
 
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
-			var history = await GetSourceHistory("solar", 6);
+			await UpdateInitialHistory();
+			await RefreshUI(InitialHistory);
+		}
 
+		async Task RefreshUI(SourceHistory history)
+		{
 			var labels = history.HistoryData
 				.Select(d => d.TimeStampUtc.LocalDateTime.ToString("HH:mm"))
 				.Reverse()
@@ -104,14 +80,9 @@ namespace Client.Shared.SourceCards
 
 		protected LineChart<double> lineChart;
 
-		protected override async Task OnInitializedAsync()
+		protected override async Task InitialHistoryLoaded()
 		{
-			await HandleRefreshClick(null);
+			await RefreshUI(InitialHistory);
 		}
-
-		// protected override async Task OnAfterRenderAsync(bool firstRender)
-		// {
-			
-		// }
 	}
 }

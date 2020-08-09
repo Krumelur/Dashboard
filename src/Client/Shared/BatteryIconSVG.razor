@@ -1,0 +1,31 @@
+<svg viewBox="0 0 174.2 66" xmlns="http://www.w3.org/2000/svg">
+	<g>
+		<rect style="fill: none; stroke: rgb(95, 104, 88);" width="160" height="66" rx="5" ry="5"/>
+		<path style="fill: none; stroke: rgb(95, 104, 88);" d="M 162 18 H 169.2 A 5 5 0 0 1 174.2 23 V 45 A 5 5 0 0 1 169.2 50 H 162 V 18 Z"/>
+	</g>
+
+	<rect style="fill: rgb(226, 228, 242);" x="3" y="3" width="154" height="60" rx="5" ry="5">
+	</rect>
+
+	<rect style="fill:#5F68BC;" x="3" y="3" width="@_batteryLevelWidth" height="60" rx="5" ry="5">
+	</rect>
+
+	<text transform="matrix(0.972644, 0, 0, 0.876749, 27.021289, 15.246585)" style="font-family:Arial; font-size: 28px; white-space: pre; text-anchor: middle;" x="54.466" y="28.903">@ChargeLevel%</text>
+</svg>
+
+@code
+{
+	[Parameter]
+	public int ChargeLevel 
+	{
+		get => _levelPercent;
+		set
+		{
+			_levelPercent = value;
+			_batteryLevelWidth = (int)(154f / 100f * value);
+		}
+	}
+
+	int _levelPercent;
+	int _batteryLevelWidth = 0;
+}

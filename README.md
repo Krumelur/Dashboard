@@ -129,6 +129,40 @@ WantedBy=multi-user.target
 
 If the service starts and stops as expected and the status shows no errors, run `sudo systemctl enable harvester.service` to launch it automatically upon booting the Raspberry.
 
+### Reboot Raspberry Pi if internet connectivity is lost
+
+Sometimes, my Raspberry 3 with built-in wifi, cannot connect to the internet anymore. This typically happens if it has been running for a couple of days. There's no clear pattern though.
+The Pi then still has an IP address and is connected to the router but cannot reach any websites or IP addresses.
+
+On Google I found others reporting similar issues and the most obvious solution seems to be a script that regularly checks connectivity and reboots ths Pi if necessary.
+I've included such a script under [`/assets/checkwifireboot.sh`](/assets/checkwifireboot.sh):
+
+```bash
+#!/bin/sh
+PING_IP="192.168.178.1"
+
+echo "Pinging $PING_IP"
+ping -c4 $PING_IP > /home/pi/Apps/Harvester/wificheckresult.txt
+
+if [ $? != 0 ]
+then
+  echo "No network connection - rebooting."
+  sudo /sbin/shutdown -r now
+fi
+```
+
+It pings the configured `PING_IP` and if the exit code (`$?`) of the `ping` command is not equal to zero, it will initiate a shutdown/reboot.
+The output of the last ping is always written to `wificheckresult.txt`.
+On my Pi, I copied the script into `/home/Pi/Apps/Harvester`.
+
+To be able to execute it, run `chmod +x checkwifireboot.sh`.
+
+I'm using a CRON job to run the script automatically. Execute `crontab -e` and add the following line:
+
+`*/10 * * * * /usr/bin/sudo -H /home/pi/Apps/Harvester/checkwifireboot.sh >> /dev/null 2>$1`
+
+This will execute the network check every 10th minute. Note: don't use a too small interval, like one minute, because it could result in an endless reboot loop if the network takes some time to start up!
+
 ## Client
 
 The client app is built with [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) an [Blazorise](https://blazorise.com/) as an abstraction over Bootstrap. It's using the web-assembly (WASM) mode of Blazor and is hosted on an Azure Blob Storage account. In the repo, there's a [GitHub action](https://github.com/Krumelur/Dashboard/actions?query=workflow%3A%22Deploy+Blazor+Client+to+Azure%22) to automatically deploy the main branch upon changes.
