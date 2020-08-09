@@ -15,8 +15,45 @@ namespace Client.Shared.SourceCards
 
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
+			_wodDate = DateTime.UtcNow;
 			await UpdateInitialHistory();
 			RefreshUI(InitialHistory);
+		}
+
+		DateTime _wodDate = DateTime.UtcNow;
+
+		public async Task HandlePreviousClick(MouseEventArgs args)
+		{
+			_wodDate = new DateTime(_wodDate.Year, _wodDate.Month, _wodDate.Day, 0, 1, 0);
+			_wodDate = _wodDate.AddDays(-1);
+
+			Console.WriteLine(_wodDate);
+
+			var history = await GetSourceHistoryFiltered(new Filter {
+				StartDateUtc = _wodDate,
+				EndDateUtc = new DateTime(_wodDate.Year, _wodDate.Month, _wodDate.Day, 23, 59, 0),
+				SourceId = "wod",
+				TakeNumberResults = 1
+			});
+
+			RefreshUI(history);
+		}
+
+		public async Task HandleNextClick(MouseEventArgs args)
+		{
+			_wodDate = new DateTime(_wodDate.Year, _wodDate.Month, _wodDate.Day, 0, 1, 0);
+			_wodDate = _wodDate.AddDays(1);
+
+			Console.WriteLine(_wodDate);
+
+			var history = await GetSourceHistoryFiltered(new Filter {
+				StartDateUtc = _wodDate,
+				EndDateUtc = new DateTime(_wodDate.Year, _wodDate.Month, _wodDate.Day, 23, 59, 0),
+				SourceId = "wod",
+				TakeNumberResults = 1
+			});
+
+			RefreshUI(history);
 		}
 
 		void RefreshUI(SourceHistory history)
