@@ -1,6 +1,17 @@
-#@baseUrl = http://localhost:7071/api
-@baseUrl = https://krumelurdashboardapi.azurewebsites.net/api/
+@baseUrl = http://localhost:7071/api
+#@baseUrl = https://krumelurdashboardapi.azurewebsites.net/api/
 
 # Get history items of a source
 GET {{baseUrl}}/sourcedata/solar?numdatapoints=20
 x-functions-key: ...
+
+###
+
+# Get filtered history
+POST {{baseUrl}}/sourcedata
+{
+  "sourceId": "wod",
+  "startDateUtc": "2020-08-08T03:00:00.000Z",
+  "endDateUtc": "2020-08-08T12:00:00.000Z",
+  "takeNumberResults": 1
+}
