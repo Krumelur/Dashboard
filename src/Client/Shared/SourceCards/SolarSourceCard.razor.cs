@@ -52,8 +52,8 @@ namespace Client.Shared.SourceCards
 			{
 				Label = consumptionEnergy,
 				Data = dataHousePower,
-				BackgroundColor = new List<string> { ChartColor.FromRgba(243, 120, 121, 0.5f) },
-				BorderColor = new List<string> { ChartColor.FromRgba(238, 64, 64, 0.5f) },
+				BackgroundColor = new List<string> { ChartColor.FromRgba(249, 134, 134, 0.5f) },
+				BorderColor = new List<string> { ChartColor.FromRgba(249, 134, 134, 1f) },
 				Fill = true,
 				PointRadius = 2,
 				BorderDash = new List<int> { }
@@ -64,8 +64,8 @@ namespace Client.Shared.SourceCards
 				Label = productionEnergy,
 				Data = dataSolarPower,
 				Fill = true,
-				BackgroundColor = new List<string> { ChartColor.FromRgba(97, 201, 137, 0.5f) },
-				BorderColor = new List<string> { ChartColor.FromRgba(28, 180, 91, 0.5f) },
+				BackgroundColor = new List<string> { ChartColor.FromRgba(226, 228, 242, 0.8f) },
+				BorderColor = new List<string> { ChartColor.FromRgba(95, 104, 188, 0.5f) },
 				PointRadius = 2,
 				BorderDash = new List<int> { }
 			};
