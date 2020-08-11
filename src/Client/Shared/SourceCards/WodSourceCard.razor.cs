@@ -15,6 +15,7 @@ namespace Client.Shared.SourceCards
 
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
+			TimeStampSource = "(aktualisieren)";
 			_wodDate = DateTime.UtcNow;
 			await UpdateInitialHistory();
 			RefreshUI(InitialHistory);
@@ -22,12 +23,16 @@ namespace Client.Shared.SourceCards
 
 		DateTime _wodDate = DateTime.UtcNow;
 
+		public async Task HandleTodayClick(MouseEventArgs args)
+		{
+			await UpdateInitialHistory();
+			RefreshUI(InitialHistory);
+		}
+
 		public async Task HandlePreviousClick(MouseEventArgs args)
 		{
-			_wodDate = new DateTime(_wodDate.Year, _wodDate.Month, _wodDate.Day, 0, 1, 0);
+			_wodDate = _wodDate.Date.Add(new TimeSpan(1, 0, 0));
 			_wodDate = _wodDate.AddDays(-1);
-
-			Console.WriteLine(_wodDate);
 
 			var history = await GetSourceHistoryFiltered(new Filter {
 				StartDateUtc = _wodDate,
@@ -39,12 +44,11 @@ namespace Client.Shared.SourceCards
 			RefreshUI(history);
 		}
 
+
 		public async Task HandleNextClick(MouseEventArgs args)
 		{
-			_wodDate = new DateTime(_wodDate.Year, _wodDate.Month, _wodDate.Day, 0, 1, 0);
+			_wodDate = _wodDate.Date.Add(new TimeSpan(1, 0, 0));
 			_wodDate = _wodDate.AddDays(1);
-
-			Console.WriteLine(_wodDate);
 
 			var history = await GetSourceHistoryFiltered(new Filter {
 				StartDateUtc = _wodDate,
@@ -58,12 +62,22 @@ namespace Client.Shared.SourceCards
 
 		void RefreshUI(SourceHistory history)
 		{
-			if(history?.HistoryData != null && history.HistoryData[0]?.DataItems != null)
+			if(history?.HistoryData != null
+			&& history.HistoryData.Length > 0
+			&& history.HistoryData[0].DataItems != null
+			&& history.HistoryData[0].DataItems.Length > 0)
 			{
+				_wodDate = history.HistoryData[0].TimeStampUtc.UtcDateTime;
+				TimeStampSource = _wodDate.ToLocalTime().ToString("g");
 				WodHtml = history.HistoryData[0].DataItems[0].Value.ToString();
+				if(string.IsNullOrWhiteSpace(WodHtml))
+				{
+					WodHtml = "Leider kein WOD gefunden :-(";	
+				}
 			}
 			else
 			{
+				TimeStampSource = _wodDate.ToLocalTime().ToString("g");
 				WodHtml = "Leider kein WOD gefunden :-(";
 			}
 		}

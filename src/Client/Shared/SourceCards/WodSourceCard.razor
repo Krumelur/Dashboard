@@ -1,9 +1,16 @@
 ﻿@inherits BaseSourceCard
 
-<SourceCard TitleLeft="WOD" TitleRight="@TimeStampSource">
-	@((MarkupString)WodHtml)
-	
-	<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
-	<Button Color="Color.Primary" @onclick="HandlePreviousClick">Previous</Button>
-	<Button Color="Color.Primary" @onclick="HandleNextClick">Next</Button>
+<SourceCard Title="WOD" UpdateTime="@TimeStampSource" DetailUrl="/wod" OnRefreshClickCallback="HandleRefreshClick">
+	<Row>
+		<Column ColumnSize="ColumnSize.IsAuto" style="float: none;margin: 0 auto;">
+			<Buttons>
+				<Button Color="Color.Primary" @onclick="HandlePreviousClick">&lt;</Button>
+				<Button Color="Color.Primary" @onclick="HandleTodayClick">Heute</Button>
+				<Button Color="Color.Primary" @onclick="HandleNextClick">&gt;</Button>
+			</Buttons>
+		</Column>
+	</Row>
+	<Row>
+		@((MarkupString)WodHtml)
+	</Row>
 </SourceCard>

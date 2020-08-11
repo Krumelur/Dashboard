@@ -48,6 +48,7 @@ html, body {
 	background-color: #D2D2E4;
 	color: #1D2559;
 	border:none;
+	padding: .70rem .75rem .0rem .75rem;
 }
 
 .card-datapoint
@@ -64,7 +65,7 @@ html, body {
 }
 
 a, .btn-link {
-    color: #0366d6;
+    color: #1D2559;
 }
 
 .btn-primary {

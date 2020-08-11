@@ -1,7 +1,5 @@
 ﻿@inherits BaseSourceCard
 
-<SourceCard TitleLeft="Pellets" TitleRight="@TimeStampSource">
+<SourceCard Title="Pellets" UpdateTime="@TimeStampSource" DetailUrl="/pellets" OnRefreshClickCallback="HandleRefreshClick">
 	<LineChart @ref="lineChart" TItem="double" />
-
-	<Button Color="Color.Primary" @onclick="HandleRefreshClick">Refresh</Button>
 </SourceCard>
