@@ -29,7 +29,7 @@ namespace Client.Shared.SourceCards
 
 		public SourceHistory InitialHistory {get; set;}
 
-		public string TimeStampSource { get; set; }
+		public string TimeStampSource { get; set; } = "(aktualisieren)";
 
 		Dictionary<string, string> _mockData = new Dictionary<string, string>
 		{
@@ -103,6 +103,7 @@ namespace Client.Shared.SourceCards
 
 		public async Task UpdateInitialHistory()
 		{
+			TimeStampSource = "(aktualisieren)";
 			InitialHistory = await GetSourceHistory(SourceId, NumInitialDataPoints);
 			TimeStampSource = InitialHistory.HistoryData.FirstOrDefault()?.TimeStampUtc.ToLocalTime().ToString("g");
 		}

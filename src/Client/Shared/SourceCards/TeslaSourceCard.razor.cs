@@ -15,6 +15,7 @@ namespace Client.Shared.SourceCards
 
 		public async Task HandleRefreshClick(MouseEventArgs args)
 		{
+			TimeStampSource = "(aktualisieren)";
 			await UpdateInitialHistory();
 			await RefreshUI(InitialHistory);
 		}
